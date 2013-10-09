@@ -1,5 +1,6 @@
 package se.repos.indexing.standalone.config;
 
+import se.repos.indexing.fulltext.HandlerFulltext;
 import se.repos.indexing.item.IndexingItemHandler;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -22,6 +23,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		
 		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
 		IndexingHandlersXml.configureFirst(handlers);
+		handlers.addBinding().to(HandlerFulltext.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
 		Multibinder<XmlIndexFieldExtraction> xmlExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
