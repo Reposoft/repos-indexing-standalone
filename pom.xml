@@ -80,4 +80,43 @@
 		</dependency>	
 	</dependencies>
 	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					
+					<archive>
+						<manifest>
+							<mainClass>se.repos.indexing.standalone.CommandLine</mainClass>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+						</manifest>
+						<manifestEntries>
+							<Repos-Component-Id>${project.artifactId}</Repos-Component-Id>
+							<Repos-Build-Tag>${BUILD_TAG}</Repos-Build-Tag>
+							<Repos-Build-Name>${JOB_NAME}</Repos-Build-Name>
+							<Repos-Build-Revision>${SVN_REVISION}</Repos-Build-Revision>
+							<Repos-Build-Number>${BUILD_NUMBER}</Repos-Build-Number>
+						</manifestEntries>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<!-- run 'mvn package' or instead use mvn assembly:assembly for an independent 
+							assembly build -->
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>attached</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>	
+	
 </project>

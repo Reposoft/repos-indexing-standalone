@@ -89,7 +89,7 @@ public class CommandLine {
 	}
 
 	protected static String guessRepositoryUrl(File repo) {
-		return "http://localhost/svn";
+		return "http://localhost/svn/" + repo.getName();
 	}
 
 }
