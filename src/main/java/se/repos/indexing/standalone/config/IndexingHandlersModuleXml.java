@@ -5,11 +5,11 @@ import se.repos.indexing.fulltext.HandlerFulltext;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
+import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
-import se.simonsoft.xmltracking.source.XmlSourceReader;
-import se.simonsoft.xmltracking.source.jdom.XmlSourceReaderJdom;
-import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSource;
-import se.simonsoft.xmltracking.source.saxon.XmlMatchingFieldExtractionSourceDefault;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
