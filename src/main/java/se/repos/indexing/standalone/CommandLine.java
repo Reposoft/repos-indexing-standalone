@@ -83,7 +83,7 @@ public class CommandLine {
 			return lookup.getYoungest(repository);
 		} else {
 			Long revisionNumber = Long.parseLong(optionsRevision); // TODO support other type of revisions or add parser in backend module
-			Date revisionDate = lookup.getRevisionTimestamp(null, revisionNumber);
+			Date revisionDate = lookup.getRevisionTimestamp(repository, revisionNumber);
 			return new RepoRevision(revisionNumber, revisionDate);
 		}
 	}
