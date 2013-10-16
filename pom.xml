@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing-fulltext</artifactId>
-			<version>1-SNAPSHOT</version>
+			<version>0.6</version>
 			<exclusions>
 				<!-- Tika 1.4 depends on Rome which depends on (jdom.)jdom 1.0, but Saxon-HE 9.4 used in cms-indexing-xml depends on (org.jdom.)jdom 1.1 -->
 				<exclusion>
