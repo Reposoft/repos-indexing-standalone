@@ -7,10 +7,12 @@ package se.repos.indexing.standalone.config;
 import org.apache.solr.client.solrj.SolrServer;
 
 import se.repos.indexing.IdStrategy;
+import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.item.IdStrategyDefault;
 import se.repos.indexing.item.ItemContentBufferStrategy;
 import se.repos.indexing.item.ItemPropertiesBufferStrategy;
+import se.repos.indexing.repository.IndexAdminPerRepositoryRepositem;
 import se.repos.indexing.repository.ReposIndexingPerRepository;
 import se.repos.indexing.twophases.ItemContentsMemorySizeLimit;
 import se.repos.indexing.twophases.ItemPropertiesImmediate;
@@ -32,6 +34,7 @@ public class IndexingModule extends AbstractModule {
 			bind(SolrServer.class).annotatedWith(Names.named(core)).toInstance(solrCoreProvider.getSolrCore(core));
 		}
 		
+		bind(IndexAdmin.class).to(IndexAdminPerRepositoryRepositem.class);
 		bind(ReposIndexing.class).to(ReposIndexingPerRepository.class);
 		
 		bind(IdStrategy.class).to(IdStrategyDefault.class);

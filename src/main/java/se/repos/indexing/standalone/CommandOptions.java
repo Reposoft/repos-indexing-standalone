@@ -23,16 +23,15 @@ public class CommandOptions {
 	private String solrUrl = "http://localhost:8080/solr/";
 
 	@Option(name="-u",
-    		usage="Repository URL used for index IDs, for example http://www.where-we-work.com/svn/repo"
-    		+ "\n If not set hostname resolution will be attempted using InetAddress.getLocalHost().getHostName()"
-    		+ "\n and if found the parent path will default to /svn/"
-    		+ "\n Custom IdStrategy impls could allow indexing without repository URL, but indexing has URL fields and has not been tested for that")
+    		usage="Repository URL used for index IDs, for example http://www.where-we-work.com/svn/repo."
+    		+ " If not set hostname resolution will be attempted using InetAddress.getLocalHost().getHostName() and if found the parent path will default to /svn/."
+    		+ " Custom IdStrategy impls could allow indexing without repository URL, but indexing has URL fields and has not been tested for that.")
     private String repositoryUrl = null;
 
 	@Option(name="-o",
 			usage="Operation. Default is sync, supported values:"
-    		+ "\n 'resync' - clear and sync, to HEAD if second argument is omitted"
-    		+ "\n 'clear' - clear, first argument can be a repository path or omitted if -u is set")
+    		+ "\n'resync' - clear and sync, to HEAD if second argument is omitted"
+    		+ "\n'clear' - clear, first argument can be a repository path or omitted if -u is set")
     private Operation operation = Operation.sync;
 	
 	@Option(name="-p",

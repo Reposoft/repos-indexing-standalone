@@ -13,8 +13,10 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Module;
 
+import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
+import se.repos.indexing.standalone.CommandOptions.Operation;
 import se.repos.indexing.standalone.config.BackendModule;
 import se.repos.indexing.standalone.config.IndexingHandlersModuleXml;
 import se.repos.indexing.standalone.config.ParentModule;
@@ -40,7 +42,7 @@ public class CommandLine {
 				}
 				options.setRepository(new File(options.getArguments().get(0)));
 			}
-			if (options.getRepository() == null && options.getArguments().size() > 1) {
+			if (options.getRevision() == null && options.getArguments().size() > 1) {
 				options.setRevision(options.getArguments().get(1));
 			}
 		} catch (CmdLineException e) {
@@ -60,14 +62,19 @@ public class CommandLine {
 
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
-		System.out.println("Indexing repository " + repository + " from " + repo + " to " + options.getSolrUrl());
-		
 		Module parentModule = new ParentModule();
 		Injector parent = Guice.createInjector(parentModule);
 		Module backendModule = new BackendModule(repository);
 		Module indexingModule = new IndexingModule(solrCoreProvider);
 		Module indexingHandlersModule = new IndexingHandlersModuleXml();
 		Injector repositoryContext = parent.createChildInjector(backendModule, indexingModule, indexingHandlersModule);
+		
+		if (options.getOperation() == Operation.clear || options.getOperation() == Operation.resync) {
+			repositoryContext.getInstance(IndexAdmin.class).clear();
+		}
+		if (options.getOperation() == Operation.clear) {
+			return;
+		}
 		
 		IndexingSchedule schedule = repositoryContext.getInstance(IndexingSchedule.class);
 		ReposIndexing indexing = repositoryContext.getInstance(ReposIndexing.class);
