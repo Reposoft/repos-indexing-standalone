@@ -5,6 +5,7 @@ package se.repos.indexing.standalone.config;
 
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
+import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
@@ -21,6 +22,8 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		bind(IndexAdminXml.class);
+		
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrj.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);
 		

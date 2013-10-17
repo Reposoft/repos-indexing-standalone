@@ -3,10 +3,7 @@
  */
 package se.repos.indexing.standalone.config;
 
-import javax.inject.Provider;
-
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 /**
  * Provides Solr cores based on solr webapp root URL.
@@ -31,7 +28,8 @@ public class SolrCoreProviderAssumeExisting implements SolrCoreProvider {
 	@Override
 	public SolrServer getSolrCore(String coreName) {
 		String coreUrl = solrUrl + coreName;
-		return new HttpSolrServer(coreUrl);
+		// provide useful toString, helps when there's multiple cores in the handler chain
+		return new se.repos.indexing.solrj.HttpSolrServerNamed(coreUrl).setName(coreName);
 	}
 
 }
