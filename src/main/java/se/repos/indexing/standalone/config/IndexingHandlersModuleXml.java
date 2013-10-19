@@ -22,7 +22,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 
 	@Override
 	protected void configure() {
-		bind(IndexAdminXml.class);
+		bind(IndexAdminXml.class).asEagerSingleton();
 		
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrj.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);
