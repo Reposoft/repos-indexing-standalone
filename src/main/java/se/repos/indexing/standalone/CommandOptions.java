@@ -42,6 +42,15 @@ public class CommandOptions {
 			usage="Revision to sync to. If omitted this can be the second anonymous argument. Defaults to head.")
 	private String revision = null;
 	
+	// daemon mode
+	@Option(name="-d",
+			usage="Daemon mode, svn parent path. Unnamed arguments list the repository names to include, all if no unnamed args.")
+	private File parentPath = null;
+	
+	@Option(name="-e",
+			usage="Equivalent URL, for daemon mode, the url that corresponds to the parent path.")
+	private String parentUrl = null;
+	
     // receives other command line parameters than options
     @Argument
     private List<String> arguments = new LinkedList<String>();	
@@ -74,6 +83,14 @@ public class CommandOptions {
 		this.revision = revision;
 	}
     
+	public File getParentPath() {
+		return parentPath;
+	}
+
+	public String getParentUrl() {
+		return parentUrl;
+	}
+
 	public List<String> getArguments() {
 		return arguments;
 	}

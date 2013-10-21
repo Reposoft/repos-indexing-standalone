@@ -36,19 +36,30 @@ public class CommandLine {
 		try {
 			parser.parseArgument(args);
 			// support hook style execution
-			if (options.getRepository() == null) {
+			if (options.getParentPath() != null) {
+				if (options.getParentUrl() == null) {
+					throw new CmdLineException(parser, "Daemon mode requires parent URL");
+				}
+			} else if (options.getRepository() == null) {
 				if (options.getArguments().size() == 0) {
 					throw new CmdLineException(parser, "Repository not set and no unnamed argument");
 				}
 				options.setRepository(new File(options.getArguments().get(0)));
 			}
-			if (options.getRevision() == null && options.getArguments().size() > 1) {
+			if (options.getRepository() != null && options.getRevision() == null && options.getArguments().size() > 1) {
 				options.setRevision(options.getArguments().get(1));
 			}
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage());
 			System.err.println("java -jar repos-indexing.jar [options...] arguments...");
 			parser.printUsage(System.err);
+			return;
+		}
+		
+		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
+		
+		if (options.getParentPath() != null) {
+			runDaemon(options, solrCoreProvider);
 			return;
 		}
 		
@@ -59,13 +70,11 @@ public class CommandLine {
 			System.err.println("Warning: guessed repository url " + url);
 		}
 		CmsRepositorySvn repository = new CmsRepositorySvn(url, repo);
-
-		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
-		Module parentModule = new ParentModule();
+		Module parentModule = new ParentModule(solrCoreProvider);
 		Injector parent = Guice.createInjector(parentModule);
 		Module backendModule = new BackendModule(repository);
-		Module indexingModule = new IndexingModule(solrCoreProvider);
+		Module indexingModule = new IndexingModule();
 		Module indexingHandlersModule = new IndexingHandlersModuleXml();
 		Injector repositoryContext = parent.createChildInjector(backendModule, indexingModule, indexingHandlersModule);
 		
@@ -86,6 +95,11 @@ public class CommandLine {
 		RepoRevision revision = getRevision(options.getRevision(), repository, lookup);
 		
 		indexing.sync(revision);
+	}
+
+	private static void runDaemon(CommandOptions options, SolrCoreProvider solrCoreProvider) {
+		new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
+				solrCoreProvider).run();
 	}
 
 	protected static RepoRevision getRevision(String optionsRevision, CmsRepositorySvn repository, CmsRepositoryLookup lookup) {

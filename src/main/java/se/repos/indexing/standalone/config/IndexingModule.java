@@ -3,9 +3,6 @@
  */
 package se.repos.indexing.standalone.config;
 
-
-import org.apache.solr.client.solrj.SolrServer;
-
 import se.repos.indexing.IdStrategy;
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
@@ -21,19 +18,9 @@ import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
 public class IndexingModule extends AbstractModule {
-
-	private SolrCoreProvider solrCoreProvider;
-
-	public IndexingModule(SolrCoreProvider solrCoreProvider) {
-		this.solrCoreProvider = solrCoreProvider;
-	}
 	
 	@Override
 	protected void configure() {
-		for (String core : new String[]{"repositem", "reposxml"}) {
-			bind(SolrServer.class).annotatedWith(Names.named(core)).toInstance(solrCoreProvider.getSolrCore(core));
-		}
-		
 		bind(IndexAdmin.class).to(IndexAdminPerRepositoryRepositem.class);
 		bind(ReposIndexing.class).to(ReposIndexingPerRepository.class);
 		

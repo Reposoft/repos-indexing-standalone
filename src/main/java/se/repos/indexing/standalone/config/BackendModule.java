@@ -3,8 +3,6 @@
  */
 package se.repos.indexing.standalone.config;
 
-import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
@@ -14,7 +12,6 @@ import se.simonsoft.cms.backend.svnkit.svnlook.CmsContentsReaderSvnkitLookRepo;
 import se.simonsoft.cms.backend.svnkit.svnlook.CmsRepositoryLookupSvnkitLook;
 import se.simonsoft.cms.backend.svnkit.svnlook.CommitRevisionCache;
 import se.simonsoft.cms.backend.svnkit.svnlook.CommitRevisionCacheDefault;
-import se.simonsoft.cms.backend.svnkit.svnlook.SvnlookClientProviderStateless;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
@@ -33,10 +30,11 @@ public class BackendModule extends AbstractModule {
 		bind(CmsRepository.class).toInstance(repository);
 		bind(CmsRepositorySvn.class).toInstance(repository);
 		
-		bind(SVNLookClient.class).toProvider(SvnlookClientProviderStateless.class);
+		// global, though currently only supporting svnkit backend
+		//bind(SVNLookClient.class).toProvider(SvnlookClientProviderStateless.class);
+		//bind(CmsRepositoryLookup.class).to(CmsRepositoryLookupSvnkit.class);
 		
-		bind(CmsRepositoryLookup.class).to(CmsRepositoryLookupSvnkitLook.class);
-		// the old name distinguisher when mixed with user-level webapp, deprecated
+		// the old name distinguisher when mixed with user-level webapp, deprecated, unnamed is in global module
 		bind(CmsRepositoryLookup.class).annotatedWith(Names.named("inspection")).to(CmsRepositoryLookupSvnkitLook.class);
 		
 		bind(CmsChangesetReader.class).to(CmsChangesetReaderSvnkitLookRepo.class);
