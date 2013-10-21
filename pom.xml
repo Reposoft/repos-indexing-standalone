@@ -104,7 +104,6 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
-					
 					<archive>
 						<manifest>
 							<mainClass>se.repos.indexing.standalone.CommandLine</mainClass>
