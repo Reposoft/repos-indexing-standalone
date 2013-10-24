@@ -117,6 +117,24 @@ public class IndexingDaemon implements Runnable {
 		logger.info("Added repository {} for admin path {}", repository.getUrl(), repository.getAdminPath());
 		known.put(path, repository);
 	}
+	
+	protected void removeRepository(CmsRepository repo) {
+		loaded.remove(repo);
+		previous.remove(repo);
+		for (File r : known.keySet()) {
+			if (repo.equals(known.get(r))) {
+				known.remove(repo);
+			}
+		}
+	}
+	
+	protected boolean isStillExisting(CmsRepository repo) {
+		if (repo instanceof CmsRepositorySvn) {
+			return ((CmsRepositorySvn) repo).getAdminPath().exists();
+		}
+		logger.info("Can not determine if repository {} still exists, unknown type {}", repo, repo.getClass().getName());
+		return true;
+	}
 
 	protected Injector getGlobal(SolrCoreProvider solrCoreProvider) {
 		return Guice.createInjector(new ParentModule(solrCoreProvider));
@@ -164,7 +182,7 @@ public class IndexingDaemon implements Runnable {
 				break;
 			}
 			if (runs > 0) {
-				logger.debug("Waiting for {} ms before next run", wait);
+				logger.info("Waiting {} ms intervals between runs", wait);
 			} else {
 				logger.trace("Waiting for {} ms before next run", wait);
 			}
@@ -183,7 +201,18 @@ public class IndexingDaemon implements Runnable {
 	 * @param repo
 	 */
 	private boolean runOnce(CmsRepositoryLookup lookup, CmsRepository repo) {
-		RepoRevision head = lookup.getYoungest(repo);
+		RepoRevision head;
+		try {
+			head = lookup.getYoungest(repo);
+		} catch (RuntimeException e) {
+			if (isStillExisting(repo)) {
+				throw e;
+			}
+			logger.info("Repository {} not found", repo);
+			logger.warn("Removing repository {} but not its index contents", repo.getName());
+			removeRepository(repo);
+			return false;
+		}
 		if (head.equals(previous.get(repo))) {
 			logger.trace("Still at revision {} for repository {}", head, repo);
 			return false;
@@ -198,7 +227,7 @@ public class IndexingDaemon implements Runnable {
 		indexing.sync(head);
 		return true;
 	}
-	
+
 	public static class DiscoveryFilterDefault implements FileFilter {
 
 		public static String[] SKIP_SUFFIX = new String[] {".old", ".org", ".noindex"};
