@@ -8,6 +8,8 @@ import java.util.Date;
 
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -35,7 +37,9 @@ public class CommandLine {
 			System.setProperty("se.repos.loglevel", "info");
 		}
 	}
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(CommandLine.class);
+		
 	public static void main(String[] args) {
 
 		CommandOptions options = new CommandOptions();
@@ -87,7 +91,11 @@ public class CommandLine {
 		String url = options.getRepositoryUrl();
 		if (url == null) {
 			url = guessRepositoryUrl(repo);
-			System.err.println("Warning: guessed repository url " + url);
+			if (options.getOperation() == Operation.clear) {
+				logger.info("Guessed repository url {}. Should be insignificant at clear.", url);
+			} else {
+				logger.warn("Guessed repository url {}. Set using -u.", url);
+			}
 		}
 		CmsRepositorySvn repository = new CmsRepositorySvn(url, repo);
 		
