@@ -26,6 +26,7 @@ import se.repos.indexing.standalone.config.SolrCoreProviderAssumeExisting;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
+import se.simonsoft.cms.version.CmsComponents;
 
 public class CommandLine {
 
@@ -54,6 +55,15 @@ public class CommandLine {
 			System.err.println("java -jar repos-indexing.jar [options...] arguments...");
 			parser.printUsage(System.err);
 			return;
+		}
+		
+		if (CmsComponents.logAllVersions() == 1) {
+			// for bundled jar
+			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing-fulltext/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing-xml/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-backend-svnkit/pom.properties");
 		}
 		
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
