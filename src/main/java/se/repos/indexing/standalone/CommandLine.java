@@ -32,7 +32,7 @@ public class CommandLine {
 
 	static { // couldn't find how to fall back to defaults in log4j config param values
 		if (System.getProperty("se.repos.loglevel") == null) {
-			System.setProperty("se.repos.loglevel", "debug");
+			System.setProperty("se.repos.loglevel", "info");
 		}
 	}
 	
