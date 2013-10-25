@@ -64,6 +64,9 @@ public class IndexingDaemon implements Runnable {
 		if (!parentPath.exists()) {
 			throw new IllegalArgumentException("Not found: " + parentPath);
 		}
+		if (!parentUrl.endsWith("/")) {
+			throw new IllegalArgumentException("Parent path URL must end with slash");
+		}
 		this.parentPath = parentPath;
 		this.parentUrl = parentUrl;
 		

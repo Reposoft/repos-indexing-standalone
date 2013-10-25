@@ -5,13 +5,16 @@
 
 -->
 <Configuration status="WARN">
+	<Properties>
+		<Property name="level">${sys:se.repos.loglevel}</Property>
+	</Properties>
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
 	</Appenders>
 	<Loggers>
-		<Root level="info">
+		<Root level="${level}">
 			<AppenderRef ref="Console" />
 		</Root>
 	</Loggers>

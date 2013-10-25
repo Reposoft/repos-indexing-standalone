@@ -48,8 +48,12 @@ public class CommandOptions {
 	private File parentPath = null;
 	
 	@Option(name="-e",
-			usage="Equivalent URL, for daemon mode, the url that corresponds to the parent path.")
+			usage="Equivalent URL, for daemon mode, the url that corresponds to the parent path, with trailing slash.")
 	private String parentUrl = null;
+	
+	@Option(name="-x",
+			usage="Custom log level. Deprecated. Use -Dlog4j.configurationFile or -Dse.repos.loglevel=level instead.")
+	private String logLevel = null;
 	
     // receives other command line parameters than options
     @Argument
@@ -91,6 +95,10 @@ public class CommandOptions {
 		return parentUrl;
 	}
 
+	public String getLogLevel() {
+		return logLevel;
+	}
+	
 	public List<String> getArguments() {
 		return arguments;
 	}

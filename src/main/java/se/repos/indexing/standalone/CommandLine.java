@@ -30,6 +30,12 @@ import se.simonsoft.cms.version.CmsComponents;
 
 public class CommandLine {
 
+	static { // couldn't find how to fall back to defaults in log4j config param values
+		if (System.getProperty("se.repos.loglevel") == null) {
+			System.setProperty("se.repos.loglevel", "debug");
+		}
+	}
+	
 	public static void main(String[] args) {
 
 		CommandOptions options = new CommandOptions();
@@ -55,6 +61,10 @@ public class CommandLine {
 			System.err.println("java -jar repos-indexing.jar [options...] arguments...");
 			parser.printUsage(System.err);
 			return;
+		}
+		
+		if (options.getLogLevel() != null) {
+			throw new IllegalArgumentException("Log level argument is deprecated. Set -Dlog4j.configurationFile or -Dse.repos.loglevel=debug instead.");
 		}
 		
 		if (CmsComponents.logAllVersions() == 1) {
@@ -125,5 +135,5 @@ public class CommandLine {
 	protected static String guessRepositoryUrl(File repo) {
 		return "http://localhost/svn/" + repo.getName();
 	}
-
+	
 }
