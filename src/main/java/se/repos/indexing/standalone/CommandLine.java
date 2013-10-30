@@ -40,7 +40,7 @@ public class CommandLine {
 
 	private static final Logger logger = LoggerFactory.getLogger(CommandLine.class);
 		
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InterruptedException {
 
 		CommandOptions options = new CommandOptions();
 		CmdLineParser parser = new CmdLineParser(options);
@@ -105,6 +105,10 @@ public class CommandLine {
 		Module indexingModule = new IndexingModule();
 		Module indexingHandlersModule = new IndexingHandlersModuleXml();
 		Injector repositoryContext = parent.createChildInjector(backendModule, indexingModule, indexingHandlersModule);
+		
+		if (options.getWait() != null) {
+			Thread.sleep(options.getWait() * 1000);
+		}
 		
 		if (options.getOperation() == Operation.clear || options.getOperation() == Operation.resync) {
 			repositoryContext.getInstance(IndexAdmin.class).clear();

@@ -42,6 +42,10 @@ public class CommandOptions {
 			usage="Revision to sync to. If omitted this can be the second anonymous argument. Defaults to head.")
 	private String revision = null;
 	
+	@Option(name="-w",
+			usage="Wait a number of seconds before processing.")
+	private Long wait = null;
+	
 	// daemon mode
 	@Option(name="-d",
 			usage="Daemon mode, svn parent path. Unnamed arguments list the repository names to include, all if no unnamed args.")
@@ -87,6 +91,14 @@ public class CommandOptions {
 		this.revision = revision;
 	}
     
+	public Long getWait() {
+		return this.wait;
+	}
+	
+	void setRevision(Long wait) {
+		this.wait = wait;
+	}
+	
 	public File getParentPath() {
 		return parentPath;
 	}
