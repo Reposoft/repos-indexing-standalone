@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>repos-indexing-standalone</artifactId>
-	<version>0.10-SNAPSHOT</version>
+	<version>0.10.0</version>
 	<packaging>jar</packaging>
 	
 	<name>repos-indexing-standalone-${project.version}</name>
@@ -37,6 +37,14 @@
 			<name>SvnKit Snapshots</name>
 			<url>http://maven.tmatesoft.com/content/repositories/snapshots/</url>
 		</repository>
+		
+		<repository>
+			<id>svnkit.releases</id>
+			<name>SvnKit Releases</name>
+			<url>http://maven.tmatesoft.com/content/repositories/releases</url>
+			<layout>default</layout>
+		</repository>
+		
 	</repositories>
 
 	<dependencies>
