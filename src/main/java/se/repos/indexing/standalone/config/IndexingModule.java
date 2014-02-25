@@ -3,10 +3,8 @@
  */
 package se.repos.indexing.standalone.config;
 
-import se.repos.indexing.IdStrategy;
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
-import se.repos.indexing.item.IdStrategyDefault;
 import se.repos.indexing.item.ItemContentBufferStrategy;
 import se.repos.indexing.item.ItemPropertiesBufferStrategy;
 import se.repos.indexing.repository.IndexAdminPerRepositoryRepositem;
@@ -16,6 +14,9 @@ import se.repos.indexing.twophases.ItemPropertiesImmediate;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+
+import se.simonsoft.cms.item.indexing.IdStrategy;
+import se.simonsoft.cms.item.indexing.IdStrategyDefault;
 
 public class IndexingModule extends AbstractModule {
 	
