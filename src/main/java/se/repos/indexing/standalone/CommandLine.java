@@ -78,7 +78,9 @@ public class CommandLine {
 			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing/pom.properties");
 			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing-xml/pom.properties");
 			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-backend-svnkit/pom.properties");
+			
 		}
+		logger.info("Version Saxon: {}", net.sf.saxon.Version.getProductVersion());
 		
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
