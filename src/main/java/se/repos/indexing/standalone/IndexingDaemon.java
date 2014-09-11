@@ -101,6 +101,9 @@ public class IndexingDaemon implements Runnable {
 		return discovery;
 	}
 	
+	/**
+	 * @param wait btw polls in milliseconds
+	 */
 	public void setWait(long wait) {
 		this.wait = wait;
 	}

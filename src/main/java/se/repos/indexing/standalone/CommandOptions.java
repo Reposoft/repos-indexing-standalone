@@ -43,9 +43,13 @@ public class CommandOptions {
 	private String revision = null;
 	
 	@Option(name="-w",
-			usage="Wait a number of seconds before processing.")
+			usage="Wait a number of seconds between each repository poll.")
 	private Long wait = null;
 	
+	@Option(name="--waitinitial",
+			usage="Wait a number of seconds before initiating processing.")
+	private Long waitInitial = null;
+
 	// daemon mode
 	@Option(name="-d",
 			usage="Daemon mode, svn parent path. Unnamed arguments list the repository names to include, all if no unnamed args.")
@@ -95,8 +99,16 @@ public class CommandOptions {
 		return this.wait;
 	}
 	
-	void setRevision(Long wait) {
+	void setWait(Long wait) {
 		this.wait = wait;
+	}
+	
+	public Long getWaitInitial() {
+		return this.waitInitial;
+	}
+
+	public void setWaitInitial(Long waitInitial) {
+		this.waitInitial = waitInitial;
 	}
 	
 	public File getParentPath() {

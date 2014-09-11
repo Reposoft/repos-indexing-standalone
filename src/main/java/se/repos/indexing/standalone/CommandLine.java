@@ -108,8 +108,8 @@ public class CommandLine {
 		Module indexingHandlersModule = new IndexingHandlersModuleXml();
 		Injector repositoryContext = parent.createChildInjector(backendModule, indexingModule, indexingHandlersModule);
 		
-		if (options.getWait() != null) {
-			Thread.sleep(options.getWait() * 1000);
+		if (options.getWaitInitial() != null) {
+			Thread.sleep(options.getWaitInitial() * 1000);
 		}
 		
 		if (options.getOperation() == Operation.clear || options.getOperation() == Operation.resync) {
@@ -132,8 +132,10 @@ public class CommandLine {
 	}
 
 	private static void runDaemon(CommandOptions options, SolrCoreProvider solrCoreProvider) {
-		new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
-				solrCoreProvider).run();
+		IndexingDaemon d = new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
+				solrCoreProvider);
+		d.setWait(options.getWait() * 1000);
+		d.run();
 	}
 
 	protected static RepoRevision getRevision(String optionsRevision, CmsRepositorySvn repository, CmsRepositoryLookup lookup) {
