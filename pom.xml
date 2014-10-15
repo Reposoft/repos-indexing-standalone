@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>repos-indexing-standalone</artifactId>
-	<version>0.14.2</version>
+	<version>0.14.3</version>
 	<packaging>jar</packaging>
 	
 	<name>repos-indexing-standalone-${project.version}</name>
@@ -73,7 +73,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.11.8</version>
+			<version>0.11.7</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
