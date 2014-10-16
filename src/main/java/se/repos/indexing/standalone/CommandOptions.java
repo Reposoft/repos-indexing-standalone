@@ -43,8 +43,8 @@ public class CommandOptions {
 	private String revision = null;
 	
 	@Option(name="-w",
-			usage="Wait a number of seconds between each repository poll.")
-	private Long wait = null;
+			usage="Wait a number of seconds between each repository poll. Defaults to 10.")
+	private Long wait = 10L;
 	
 	@Option(name="--waitinitial",
 			usage="Wait a number of seconds before initiating processing.")
