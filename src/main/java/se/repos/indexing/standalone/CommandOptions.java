@@ -15,7 +15,8 @@ public class CommandOptions {
 	public enum Operation {
 		sync,
 		resync,
-		clear
+		clear,
+		optimize
 	};
 	
 	@Option(name="-s",
@@ -31,7 +32,8 @@ public class CommandOptions {
 	@Option(name="-o",
 			usage="Operation. Default is sync, supported values:"
     		+ "\n'resync' - clear and sync, to HEAD if second argument is omitted"
-    		+ "\n'clear' - clear, first argument can be a repository path or omitted if -u is set")
+    		+ "\n'clear' - clear, first argument can be a repository path or omitted if -u is set"
+    		+ "\n'optimize' - run optimize on core names given by arguments, then exit")
     private Operation operation = Operation.sync;
 	
 	@Option(name="-p",

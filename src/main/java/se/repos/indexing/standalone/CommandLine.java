@@ -5,7 +5,9 @@ package se.repos.indexing.standalone;
 
 import java.io.File;
 import java.util.Date;
+import java.util.List;
 
+import org.apache.solr.client.solrj.SolrServer;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -18,6 +20,7 @@ import com.google.inject.Module;
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
+import se.repos.indexing.solrj.SolrOptimize;
 import se.repos.indexing.standalone.CommandOptions.Operation;
 import se.repos.indexing.standalone.config.BackendModule;
 import se.repos.indexing.standalone.config.IndexingHandlersModuleXml;
@@ -116,6 +119,16 @@ public class CommandLine {
 			repositoryContext.getInstance(IndexAdmin.class).clear();
 		}
 		if (options.getOperation() == Operation.clear) {
+			return;
+		}
+		if (options.getOperation() == Operation.optimize) {
+			List<String> cores = options.getArguments();
+			for (String corename : cores) {
+				logger.info("Optimizing core {}", corename);
+				SolrServer core = solrCoreProvider.getSolrCore(corename);
+				new SolrOptimize(core).run();
+			}
+			logger.info("Optimize completed");
 			return;
 		}
 		
