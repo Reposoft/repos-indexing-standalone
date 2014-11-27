@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
-			<version>0.7.3</version>
+			<version>0.8.0</version>
 		</dependency>		
 		<dependency>
 			<groupId>se.simonsoft</groupId>
