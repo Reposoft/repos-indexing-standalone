@@ -4,6 +4,9 @@
 package se.repos.indexing.standalone.config;
 
 import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
+
+import se.repos.indexing.solrj.HttpSolrServerNamed;
 
 /**
  * Provides Solr cores based on solr webapp root URL.
@@ -29,7 +32,9 @@ public class SolrCoreProviderAssumeExisting implements SolrCoreProvider {
 	public SolrServer getSolrCore(String coreName) {
 		String coreUrl = solrUrl + coreName;
 		// provide useful toString, helps when there's multiple cores in the handler chain
-		return new se.repos.indexing.solrj.HttpSolrServerNamed(coreUrl).setName(coreName);
+		HttpSolrServerNamed server = new se.repos.indexing.solrj.HttpSolrServerNamed(coreUrl).setName(coreName);
+		server.setRequestWriter(new BinaryRequestWriter());
+		return server;
 	}
 
 }
