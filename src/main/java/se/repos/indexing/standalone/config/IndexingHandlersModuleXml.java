@@ -11,9 +11,7 @@ import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
-import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrj;
-import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
-import se.simonsoft.cms.xmlsource.handler.jdom.XmlSourceReaderJdom;
+import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -24,8 +22,10 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 	protected void configure() {
 		bind(IndexAdminXml.class).asEagerSingleton();
 		
-		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrj.class);
-		bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);
+		// ticket:821 The safe choice is XmlIndexWriterSolrj.class while XmlIndexWriterSolrjBackground.class provides 25-30% better performance.
+		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class);
+		// No longer injecting the XmlSourceReader. It is hard coded to S9API. Must be able to use different one in Pretranslate.
+		//bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);
 		
 		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
 		IndexingHandlersXml.configureFirst(handlers);
