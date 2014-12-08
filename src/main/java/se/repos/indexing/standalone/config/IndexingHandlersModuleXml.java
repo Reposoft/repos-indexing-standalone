@@ -15,9 +15,13 @@ import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
+import com.google.inject.name.Names;
 
 public class IndexingHandlersModuleXml extends AbstractModule {
 
+	public static final String CONFIG_XML_MAX_FILESIZE = "se.simonsoft.cms.indexing.xml.maxFilesize";
+	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 10 * 1048576;	
+	
 	@Override
 	protected void configure() {
 		bind(IndexAdminXml.class).asEagerSingleton();
@@ -36,6 +40,14 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		IndexingHandlersXml.configureXmlFieldExtraction(xmlExtraction);
 		
 		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
+		
+		// Type support is what's stopping us from extracting a method for this
+		Integer maxFilesize = CONFIG_XML_MAX_FILESIZE_DEFAULT;
+		String maxFilesizeStr = System.getProperty(CONFIG_XML_MAX_FILESIZE);
+		if (maxFilesizeStr != null) {
+			maxFilesize = Integer.parseInt(maxFilesizeStr);
+		}
+		bind(Integer.class).annotatedWith(Names.named(CONFIG_XML_MAX_FILESIZE)).toInstance(maxFilesize);
 	}
 
 }
