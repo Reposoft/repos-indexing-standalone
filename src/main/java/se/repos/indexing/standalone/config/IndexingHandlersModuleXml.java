@@ -12,8 +12,6 @@ import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
-import se.simonsoft.cms.xmlsource.content.XmlSourceLookup;
-import se.simonsoft.cms.xmlsource.content.XmlSourceLookupImpl;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -50,10 +48,6 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 			maxFilesize = Integer.parseInt(maxFilesizeStr);
 		}
 		bind(Integer.class).annotatedWith(Names.named(CONFIG_XML_MAX_FILESIZE)).toInstance(maxFilesize);
-		
-		// Getting source from Svn
-		// TODO: Needs review.
-		bind(XmlSourceLookup.class).to(XmlSourceLookupImpl.class).asEagerSingleton();
 	}
 
 }
