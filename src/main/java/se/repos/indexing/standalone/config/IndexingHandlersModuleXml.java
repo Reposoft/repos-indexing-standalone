@@ -20,7 +20,7 @@ import com.google.inject.name.Names;
 public class IndexingHandlersModuleXml extends AbstractModule {
 
 	public static final String CONFIG_XML_MAX_FILESIZE = "se.simonsoft.cms.indexing.xml.maxFilesize";
-	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 10 * 1048576;	
+	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 5 * 1048576; // Setting a conservative default.
 	
 	@Override
 	protected void configure() {
