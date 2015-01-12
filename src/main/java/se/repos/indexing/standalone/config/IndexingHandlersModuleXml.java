@@ -3,15 +3,24 @@
  */
 package se.repos.indexing.standalone.config;
 
+import net.sf.saxon.lib.ExtensionFunctionDefinition;
+import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
 import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
+import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
 import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
+import se.simonsoft.cms.xmlsource.SaxonConfiguration;
+import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
+import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
+import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
+import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.Multibinder;
@@ -24,22 +33,32 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 	
 	@Override
 	protected void configure() {
-		bind(IndexAdminXml.class).asEagerSingleton();
+		bind(Processor.class).toProvider(SaxonConfiguration.class);
+		Multibinder<ExtensionFunctionDefinition> transformerFunctions = Multibinder.newSetBinder(binder(), ExtensionFunctionDefinition.class);
+		transformerFunctions.addBinding().to(GetChecksum.class);
+		transformerFunctions.addBinding().to(GetPegRev.class);
+		transformerFunctions.addBinding().to(WithPegRev.class);
+		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
 		
 		// ticket:821 The safe choice is XmlIndexWriterSolrj.class while XmlIndexWriterSolrjBackground.class provides 25-30% better performance.
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class);
-		// No longer injecting the XmlSourceReader. It is hard coded to S9API. Must be able to use different one in Pretranslate.
-		//bind(XmlSourceReader.class).to(XmlSourceReaderJdom.class);
 		
+		// Item indexing, add XML handler
 		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
 		IndexingHandlersXml.configureFirst(handlers);
 		handlers.addBinding().to(HandlerFulltext.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
+		// XML field extraction
 		Multibinder<XmlIndexFieldExtraction> xmlExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
 		IndexingHandlersXml.configureXmlFieldExtraction(xmlExtraction);
 		
+		// Used in field extraction. We don't have a strategy yet for placement of the custom xsl, read from jar
 		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
+		bind(IndexFieldExtractionCustomXsl.class).asEagerSingleton(); // This line was not present before 0.16, but was in the testconfig.
+		
+		// hook into repos-indexing actions
+		bind(IndexAdminXml.class).asEagerSingleton();
 		
 		// Type support is what's stopping us from extracting a method for this
 		Integer maxFilesize = CONFIG_XML_MAX_FILESIZE_DEFAULT;
