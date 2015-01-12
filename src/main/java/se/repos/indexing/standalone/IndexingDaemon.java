@@ -30,6 +30,8 @@ import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
+import se.simonsoft.cms.item.inspection.CmsContentsReader;
+import se.simonsoft.cms.item.properties.CmsItemProperties;
 
 public class IndexingDaemon implements Runnable {
 
@@ -44,6 +46,7 @@ public class IndexingDaemon implements Runnable {
 	private Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
 	private Map<CmsRepository, ReposIndexing> loaded = new LinkedHashMap<CmsRepository, ReposIndexing>();
 	private Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
+	private Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
 	
 	private boolean discovery = false;
 	
@@ -120,6 +123,8 @@ public class IndexingDaemon implements Runnable {
 		Injector context = getSvn(global, repository);
 		ReposIndexing indexing = context.getInstance(ReposIndexing.class);
 		loaded.put(repository, indexing);
+		CmsContentsReader contents = context.getInstance(CmsContentsReader.class);
+		contentsReaders.put(repository, contents);
 		logger.info("Added repository {} for admin path {}", repository.getUrl(), repository.getAdminPath());
 		known.put(path, repository);
 	}
@@ -208,6 +213,19 @@ public class IndexingDaemon implements Runnable {
 	 */
 	private boolean runOnce(CmsRepositoryLookup lookup, CmsRepository repo) {
 		RepoRevision head;
+		
+		CmsContentsReader contentsReader = contentsReaders.get(repo);
+		if (contentsReader != null) {
+			CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
+			logger.debug("revProps: {}", (revProps != null ? revProps.getKeySet() : "null"));
+			if (revProps != null && "none".equals(revProps.getString("indexing:mode"))) {
+				logger.warn("Aborting indexing for {}, indexing:mode was set to none.", repo);
+				return false;
+			}
+		} else {
+			logger.warn("Could not read properties for {}, no contents reader was loaded.", repo);
+		}
+		
 		try {
 			head = lookup.getYoungest(repo);
 		} catch (RuntimeException e) {

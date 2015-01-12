@@ -147,7 +147,7 @@ public class CommandLine {
 	private static void runDaemon(CommandOptions options, SolrCoreProvider solrCoreProvider) {
 		IndexingDaemon d = new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
 				solrCoreProvider);
-		d.setWait(options.getWait() * 1000);
+		d.setWait(options.getWait() != null ? options.getWait() * 1000 : 0);
 		d.run();
 	}
 
