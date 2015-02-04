@@ -217,8 +217,8 @@ public class IndexingDaemon implements Runnable {
 		CmsContentsReader contentsReader = contentsReaders.get(repo);
 		if (contentsReader != null) {
 			CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
-			logger.debug("revProps: {}", (revProps != null ? revProps.getKeySet() : "null"));
-			if (revProps != null && "none".equals(revProps.getString("indexing:mode"))) {
+			logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
+			if (revProps != null && "none".equals(revProps.getString("indexing:mode").trim())) {
 				logger.warn("Aborting indexing for {}, indexing:mode was set to none.", repo);
 				return false;
 			}
