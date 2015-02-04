@@ -182,8 +182,7 @@ public class IndexingDaemon implements Runnable {
 		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
 		schedule.start();
 		
-		while (true) {
-			int runs = 0;
+		try { // Mostly for keeping old indentation.
 			if (discovery) {
 				discover();
 			}
@@ -198,10 +197,14 @@ public class IndexingDaemon implements Runnable {
 			for (CmsRepository repo : removeRepos) {
 				removeRepository(repo);
 			}
-			removeRepos = null;
-			
-			logger.info("Indexing enabled for repositories: {}", loaded.keySet());
-			
+		} catch (Exception e) {
+			logger.error("Discovery failed: {}", e.getMessage(), e);
+			throw new RuntimeException("Discovery failed.", e);
+		}
+		
+		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
+		while (true) {
+			int runs = 0;
 			for (CmsRepository repo : loaded.keySet()) {
 				runs += runOnce(lookup, repo) ? 1 : 0;
 			}
