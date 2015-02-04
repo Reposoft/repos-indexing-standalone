@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	
 	<artifactId>repos-indexing-standalone</artifactId>
-	<version>0.16.1-SNAPSHOT</version>
+	<version>0.16.1</version>
 	<packaging>jar</packaging>
 	
 	<name>repos-indexing-standalone-${project.version}</name>
@@ -51,7 +51,7 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing-fulltext</artifactId>
-			<version>0.10</version>
+			<version>0.10.1</version>
 			<exclusions>
 				<!-- Tika 1.4 depends on Rome which depends on (jdom.)jdom 1.0, but Saxon-HE 9.4 used in cms-indexing-xml depends on (org.jdom.)jdom 1.1 -->
 				<exclusion>
@@ -63,12 +63,12 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing</artifactId>
-			<version>0.10</version>
+			<version>0.10.0</version>
 		</dependency>		
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.15</version>
+			<version>0.15.2</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
