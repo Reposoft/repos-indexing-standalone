@@ -186,6 +186,14 @@ public class IndexingDaemon implements Runnable {
 			if (discovery) {
 				discover();
 			}
+			// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
+			for (CmsRepository repo : loaded.keySet()) {
+				if (!indexingEnabled(repo)) {
+					removeRepository(repo);
+				}
+			}
+			logger.info("Indexing enabled for repositories: {}", loaded.keySet());
+			
 			for (CmsRepository repo : loaded.keySet()) {
 				runs += runOnce(lookup, repo) ? 1 : 0;
 			}
@@ -213,19 +221,6 @@ public class IndexingDaemon implements Runnable {
 	 */
 	private boolean runOnce(CmsRepositoryLookup lookup, CmsRepository repo) {
 		RepoRevision head;
-		
-		CmsContentsReader contentsReader = contentsReaders.get(repo);
-		if (contentsReader != null) {
-			CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
-			logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
-			if (revProps != null && "none".equals(revProps.getString("indexing:mode").trim())) {
-				logger.warn("Aborting indexing for {}, indexing:mode was set to none.", repo);
-				return false;
-			}
-		} else {
-			logger.warn("Could not read properties for {}, no contents reader was loaded.", repo);
-		}
-		
 		try {
 			head = lookup.getYoungest(repo);
 		} catch (RuntimeException e) {
@@ -249,6 +244,23 @@ public class IndexingDaemon implements Runnable {
 //		}
 		logger.debug("Sync {} {}", repo, head);
 		indexing.sync(head);
+		return true;
+	}
+	
+	private boolean indexingEnabled(CmsRepository repo) {
+		
+		CmsContentsReader contentsReader = contentsReaders.get(repo);
+		if (contentsReader != null) {
+			CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
+			logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
+			if (revProps != null && "none".equals(revProps.getString("indexing:mode").trim())) {
+				logger.warn("Indexing disabled for {}, indexing:mode was set to none.", repo);
+				return false;
+			}
+		} else {
+			logger.warn("Could not read properties for {}, no contents reader was loaded.", repo);
+		}
+		// Falling back to true even when unable to read revprops.
 		return true;
 	}
 
