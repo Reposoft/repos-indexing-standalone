@@ -137,6 +137,7 @@ public class IndexingDaemon implements Runnable {
 				known.remove(repo);
 			}
 		}
+		logger.info("Removed repository {}", repo.getUrl());
 	}
 	
 	protected boolean isStillExisting(CmsRepository repo) {
