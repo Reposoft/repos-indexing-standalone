@@ -188,11 +188,18 @@ public class IndexingDaemon implements Runnable {
 				discover();
 			}
 			// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
+			Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
 			for (CmsRepository repo : loaded.keySet()) {
 				if (!indexingEnabled(repo)) {
-					removeRepository(repo);
+					removeRepos.add(repo);
 				}
 			}
+			// Actually remove them, avoiding concurrent modification.
+			for (CmsRepository repo : removeRepos) {
+				removeRepository(repo);
+			}
+			removeRepos = null;
+			
 			logger.info("Indexing enabled for repositories: {}", loaded.keySet());
 			
 			for (CmsRepository repo : loaded.keySet()) {
