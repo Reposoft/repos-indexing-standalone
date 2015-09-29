@@ -6,7 +6,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
-	<name>repos-indexing-standalone-${project.version}</name>
+	<name>repos-indexing-standalone</name>
 	<url>http://www.repos.se/</url>
 	
 	<parent>
