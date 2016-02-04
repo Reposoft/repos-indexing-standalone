@@ -5,6 +5,7 @@ package se.repos.indexing.standalone;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -47,6 +48,7 @@ public class IndexingDaemon implements Runnable {
 	private Map<CmsRepository, ReposIndexing> loaded = new LinkedHashMap<CmsRepository, ReposIndexing>();
 	private Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
 	private Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
+	private List<CmsRepository> reposToRemove = null;
 	
 	private boolean discovery = false;
 	
@@ -205,9 +207,19 @@ public class IndexingDaemon implements Runnable {
 		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
 		while (true) {
 			int runs = 0;
+			reposToRemove = new ArrayList<CmsRepository>();
+			
 			for (CmsRepository repo : loaded.keySet()) {
 				runs += runOnce(lookup, repo) ? 1 : 0;
 			}
+			
+			logger.debug("Will remove {} repos", reposToRemove.size());
+			for (CmsRepository repo: reposToRemove) {
+				logger.debug("Removing deleted repository {}", repo);
+				removeRepository(repo);
+			}
+
+
 			if (wait == 0) {
 				break;
 			}
@@ -223,6 +235,7 @@ public class IndexingDaemon implements Runnable {
 				break; // abort
 			}
 		}
+		
 	}
 
 	/**
@@ -240,7 +253,7 @@ public class IndexingDaemon implements Runnable {
 			}
 			logger.info("Repository {} not found", repo);
 			logger.warn("Removing repository {} but not its index contents", repo.getName());
-			removeRepository(repo);
+			reposToRemove.add(repo);
 			return false;
 		}
 		if (head.equals(previous.get(repo))) {
