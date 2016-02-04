@@ -7,7 +7,7 @@
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	
-	<name>${project.artifactId}</name>
+	<name>${project.artifactId}-${project.version}</name>
 	<url>http://www.repos.se/</url>
 	
 	<parent>
@@ -114,6 +114,8 @@
 	</dependencies>
 	
 	<build>
+		<!-- Make sure the resulting JAR does not have version number (will still have version when deployed to repository). -->
+		<finalName>${artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
