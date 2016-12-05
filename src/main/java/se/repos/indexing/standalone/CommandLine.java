@@ -12,6 +12,8 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
+import org.tmatesoft.svn.util.Version;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -84,6 +86,7 @@ public class CommandLine {
 			
 		}
 		logger.info("Version Saxon: {}", net.sf.saxon.Version.getProductVersion());
+		setupSvnkit(); // Logs the SVNKit version.
 		
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
@@ -163,6 +166,15 @@ public class CommandLine {
 
 	protected static String guessRepositoryUrl(File repo) {
 		return "http://localhost/svn/" + repo.getName();
+	}
+	
+	private static void setupSvnkit() {
+		
+		// Currently no configuration, only accessing via svnlook.
+		String version = Version.getMajorVersion() + "." + Version.getMinorVersion() + "." + Version.getMicroVersion();
+		String revNumber = Version.getRevisionString();
+		String verMsg = MessageFormatter.format("Version SVNKit: {}", new Object[] { version + " (r" + revNumber + ")" }).getMessage();
+		logger.info(verMsg);
 	}
 	
 }
