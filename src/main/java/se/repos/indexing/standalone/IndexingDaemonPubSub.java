@@ -104,7 +104,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 				stillAlive = new Date();
 			}
 		};
-		eventSource.register(listenerConnected, "connected");
+		eventSource.register(listenerConnected, "svnpubsub");
 
 		EventListener listenerCommit = new EventListener() {
 			@Override
