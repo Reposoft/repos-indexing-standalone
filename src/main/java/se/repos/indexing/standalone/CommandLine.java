@@ -90,6 +90,12 @@ public class CommandLine {
 		
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
+		if (options.getSVNPubSubUrl() != null && options.getParentPath() != null) {
+			logger.info("SVNPubSub: {}", options.getSVNPubSubUrl());
+			runDaemonPubSub(options, solrCoreProvider);
+			return;
+		}
+		
 		if (options.getParentPath() != null) {
 			runDaemon(options, solrCoreProvider);
 			return;
@@ -150,6 +156,13 @@ public class CommandLine {
 	private static void runDaemon(CommandOptions options, SolrCoreProvider solrCoreProvider) {
 		IndexingDaemon d = new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
 				solrCoreProvider);
+		d.setWait(options.getWait() != null ? options.getWait() * 1000 : 0);
+		d.run();
+	}
+	
+	private static void runDaemonPubSub(CommandOptions options, SolrCoreProvider solrCoreProvider) {
+		IndexingDaemon d = new IndexingDaemonPubSub(options.getParentPath(), options.getParentUrl(), options.getArguments(),
+				solrCoreProvider, options.getSVNPubSubUrl());
 		d.setWait(options.getWait() != null ? options.getWait() * 1000 : 0);
 		d.run();
 	}

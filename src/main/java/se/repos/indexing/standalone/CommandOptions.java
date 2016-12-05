@@ -28,6 +28,10 @@ public class CommandOptions {
     		+ " If not set hostname resolution will be attempted using InetAddress.getLocalHost().getHostName() and if found the parent path will default to /svn/."
     		+ " Custom IdStrategy impls could allow indexing without repository URL, but indexing has URL fields and has not been tested for that.")
     private String repositoryUrl = null;
+	
+	@Option(name="--svnpubsub",
+    		usage="SVNPubSub URL, for example http://localhost:2069/commits.")
+    private String svnpubsubUrl = null;
 
 	@Option(name="-o",
 			usage="Operation. Default is sync, supported values:"
@@ -76,6 +80,10 @@ public class CommandOptions {
     public String getRepositoryUrl() {
 		return repositoryUrl;
 	}
+    
+    public String getSVNPubSubUrl() {
+    	return svnpubsubUrl;
+    }
 
 	public Operation getOperation() {
 		return operation;

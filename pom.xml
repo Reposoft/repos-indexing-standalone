@@ -28,10 +28,10 @@
 
 	<repositories>
 		<repository>
-			<id>repos.open.repo</id>
-			<name>Repos Open Repository</name>
-			<url>http://reposserver.sourceforge.net/maven/</url>
-		</repository>
+            <id>repos.open.repo</id>
+            <name>Simonsoft / Repos Open Repository</name>
+            <url>http://opensource.simonsoft.se/maven/</url>
+        </repository>
 		<repository>
 			<id>svnkit.snapshots</id>
 			<name>SvnKit Snapshots</name>
@@ -59,11 +59,18 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
 			<version>0.17.2</version>
+			<exclusions>
+			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
+            <exclusion>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>jsr311-api</artifactId>
+            </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-svnkit</artifactId>
-			<version>1.2.3</version>
+			<version>1.2.4</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -111,6 +118,16 @@
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-slf4j-impl</artifactId>
 			<version>2.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.core</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>2.24.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jersey.media</groupId>
+			<artifactId>jersey-media-sse</artifactId>
+			<version>2.24.1</version>
 		</dependency>
 	</dependencies>
 	
