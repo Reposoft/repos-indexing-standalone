@@ -5,6 +5,7 @@ package se.repos.indexing.standalone;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,23 +41,23 @@ public class IndexingDaemon implements Runnable {
 
 	public static final long WAIT_DEFAULT = 10000;
 	
-	private long wait = WAIT_DEFAULT;
+	protected long wait = WAIT_DEFAULT;
 	
-	private Injector global;
+	protected Injector global;
 	
-	private Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
-	private Map<CmsRepository, ReposIndexing> loaded = new LinkedHashMap<CmsRepository, ReposIndexing>();
-	private Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
-	private Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
-	private List<CmsRepository> reposToRemove = null;
+	protected Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
+	protected Map<CmsRepository, ReposIndexing> loaded = new LinkedHashMap<CmsRepository, ReposIndexing>();
+	protected Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
+	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
+	protected List<CmsRepository> reposToRemove = null;
 	
-	private boolean discovery = false;
+	protected boolean discovery = false;
 	
-	private FileFilter discoveryFilter = new DiscoveryFilterDefault();
+	protected FileFilter discoveryFilter = new DiscoveryFilterDefault();
 
-	private File parentPath;
+	protected File parentPath;
 
-	private String parentUrl;
+	protected String parentUrl;
 	
 	/**
 	 * 
@@ -243,12 +244,21 @@ public class IndexingDaemon implements Runnable {
 	 * @param lookup
 	 * @param repo
 	 */
-	private boolean runOnce(CmsRepositoryLookup lookup, CmsRepository repo) {
+	protected boolean runOnce(CmsRepositoryLookup lookup, CmsRepository repo) {
 		RepoRevision head;
 		try {
 			head = lookup.getYoungest(repo);
+		} catch (NonWritableChannelException e) {
+			// Thrown by SVNKit 1.8.14 when called directly after post-commit hook.
+			logger.error("SVNKit failed svnlook youngest.");
+			logger.debug("SVNKit failed svnlook youngest: ", e);
+			
+			// Awaiting resolution in SVNKit or migration to http instead of svnlook.
+			throw e;
+			
 		} catch (RuntimeException e) {
 			if (isStillExisting(repo)) {
+				logger.error("Failed to lookup youngest revision: ", e);
 				throw e;
 			}
 			logger.info("Repository {} not found", repo);
@@ -271,7 +281,7 @@ public class IndexingDaemon implements Runnable {
 		return true;
 	}
 	
-	private boolean indexingEnabled(CmsRepository repo) {
+	protected boolean indexingEnabled(CmsRepository repo) {
 		
 		CmsContentsReader contentsReader = contentsReaders.get(repo);
 		if (contentsReader != null) {
