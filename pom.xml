@@ -133,7 +133,7 @@
 	
 	<build>
 		<!-- Make sure the resulting JAR does not have version number (will still have version when deployed to repository). -->
-		<finalName>${artifactId}</finalName>
+		<finalName>${project.artifactId}</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
