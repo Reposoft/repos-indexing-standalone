@@ -7,6 +7,9 @@ import net.sf.saxon.lib.ExtensionFunctionDefinition;
 import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
+import se.simonsoft.cms.indexing.keydef.HandlerKeydef;
+import se.simonsoft.cms.indexing.keydef.HandlerKeydefExcel;
+import se.simonsoft.cms.indexing.keydef.HandlerKeydefXliff;
 import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -47,6 +50,8 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		Multibinder<IndexingItemHandler> handlers = Multibinder.newSetBinder(binder(), IndexingItemHandler.class);
 		IndexingHandlersXml.configureFirst(handlers);
 		handlers.addBinding().to(HandlerFulltext.class);
+		handlers.addBinding().to(HandlerKeydefXliff.class);
+		handlers.addBinding().to(HandlerKeydefExcel.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
 		// XML field extraction
