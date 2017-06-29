@@ -4,6 +4,7 @@
 package se.repos.indexing.standalone;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 
@@ -76,6 +77,7 @@ public class CommandLine {
 			throw new IllegalArgumentException("Log level argument is deprecated. Set -Dlog4j.configurationFile or -Dse.repos.loglevel=debug instead.");
 		}
 		
+		logger.info("JVM default charset: {}", Charset.defaultCharset());
 		if (CmsComponents.logAllVersions() == 1) {
 			// for bundled jar
 			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing/pom.properties");
