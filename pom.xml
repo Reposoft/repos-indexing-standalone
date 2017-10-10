@@ -71,6 +71,13 @@
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
 			<version>0.1.0</version>
+ 			<exclusions>
+				<exclusion>
+					<groupId>org.apache.cxf</groupId>
+    				<artifactId>cxf-rt-rs-client</artifactId>
+				</exclusion>
+            </exclusions>
+ 
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -129,11 +136,19 @@
 			<artifactId>jersey-client</artifactId>
 			<version>2.24.1</version>
 		</dependency>
+		 
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
 			<artifactId>jersey-media-sse</artifactId>
 			<version>2.24.1</version>
+			<exclusions>
+            	<exclusion>
+                	<groupId>org.glassfish.jersey.core</groupId>
+    				<artifactId>jersey-server</artifactId>
+            	</exclusion>
+            </exclusions>
 		</dependency>
+		
 	</dependencies>
 	
 	<build>
