@@ -56,6 +56,12 @@
 		</dependency>
 	-->		
 		<dependency>
+			<!-- Tika 1.14 requires commons-io 2.5. -->
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.6</version>
+        </dependency>
+		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
 			<version>0.18.2</version>
