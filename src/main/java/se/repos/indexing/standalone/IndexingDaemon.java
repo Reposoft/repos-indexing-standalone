@@ -9,10 +9,10 @@ import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,7 +46,7 @@ public class IndexingDaemon implements Runnable {
 	protected Injector global;
 	
 	protected Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
-	protected Map<CmsRepository, ReposIndexing> loaded = new LinkedHashMap<CmsRepository, ReposIndexing>();
+	protected Map<CmsRepository, ReposIndexing> loaded = new TreeMap<CmsRepository, ReposIndexing>(new CmsRepositoryComparator());
 	protected Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
 	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
 	protected List<CmsRepository> reposToRemove = null;
@@ -117,6 +117,12 @@ public class IndexingDaemon implements Runnable {
 	public long getWait() {
 		return this.wait;
 	}
+	
+	// For testing
+	Set<CmsRepository> getRepositoriesLoaded() {
+		return this.loaded.keySet();
+	}
+	
 
 	protected void addRepository(File path, String url) {
 		if (known.containsKey(path)) {
@@ -326,6 +332,17 @@ public class IndexingDaemon implements Runnable {
 			return true;
 		}
 		
+	}
+	
+	static class CmsRepositoryComparator implements java.util.Comparator<CmsRepository> {
+		@Override
+		public int compare(CmsRepository o1, CmsRepository o2) {
+			if (o1 == null) throw new IllegalArgumentException("CmsRepository can not be null");
+			if (o2 == null) throw new IllegalArgumentException("CmsRepository can not be null");
+			if (o1.getName() == null) throw new IllegalArgumentException("CmsRepository must have name " + o1);
+			if (o2.getName() == null) throw new IllegalArgumentException("CmsRepository must have name " + o2);
+			return o1.getName().compareTo(o2.getName());
+		}
 	}
 	
 }
