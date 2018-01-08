@@ -178,6 +178,7 @@
 							<Repos-Build-Tag>${BUILD_TAG}</Repos-Build-Tag>
 							<Repos-Build-Name>${JOB_NAME}</Repos-Build-Name>
 							<Repos-Build-Revision>${SVN_REVISION}</Repos-Build-Revision>
+							<Repos-Build-Commit>${GIT_COMMIT}</Repos-Build-Commit>
 							<Repos-Build-Number>${BUILD_NUMBER}</Repos-Build-Number>
 						</manifestEntries>
 					</archive>
