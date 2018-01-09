@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ public class IndexingDaemon implements Runnable {
 	protected Injector global;
 	
 	protected Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
-	protected Map<CmsRepository, ReposIndexing> loaded = new TreeMap<CmsRepository, ReposIndexing>(new CmsRepositoryComparator());
+	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<CmsRepository, ReposIndexing>(new CmsRepositoryComparator());
 	protected Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
 	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
 	protected List<CmsRepository> reposToRemove = null;
