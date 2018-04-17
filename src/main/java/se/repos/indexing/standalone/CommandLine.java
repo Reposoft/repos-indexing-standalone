@@ -82,9 +82,9 @@ public class CommandLine {
 			// for bundled jar
 			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing/pom.properties");
 			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing-fulltext/pom.properties");
-			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing/pom.properties");
-			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing-xml/pom.properties");
 			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-backend-svnkit/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing-keydef/pom.properties");
+			CmsComponents.logPomProperties("META-INF/maven/se.simonsoft/cms-indexing-xml/pom.properties");
 			
 		}
 		logger.info("Version Saxon: {}", net.sf.saxon.Version.getProductVersion());
