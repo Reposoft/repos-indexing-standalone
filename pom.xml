@@ -65,13 +65,13 @@
         <dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-item</artifactId>
-			<version>2.7.0-SNAPSHOT</version>
+			<version>2.7.0</version>
 		</dependency>
         
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.18.3-SNAPSHOT</version>
+			<version>0.18.3</version>
 			<exclusions>
 			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
             <exclusion>
@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
-			<version>0.2.0-SNAPSHOT</version>
+			<version>0.2.0</version>
  			<exclusions>
 				<exclusion>
 					<groupId>org.apache.cxf</groupId>
