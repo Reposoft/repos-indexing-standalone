@@ -83,7 +83,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
-			<version>0.2.0</version>
+			<version>0.2.1-SNAPSHOT</version>
  			<exclusions>
 				<exclusion>
 					<groupId>org.apache.cxf</groupId>
