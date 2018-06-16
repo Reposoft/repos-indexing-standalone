@@ -248,6 +248,9 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 				syncRepo(lookup, repo); // Retry added last in queue.
 			} catch (Exception e) {
 				logger.error("Sync failed for repository '{}'", repo.getName(), e);
+			} catch (Error error) {
+				logger.error("Sync failed with Error for repository '{}'", repo.getName(), error);
+				throw error;
 			}
 			return null;
 		}
