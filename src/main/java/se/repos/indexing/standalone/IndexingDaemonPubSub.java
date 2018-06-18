@@ -11,8 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.scheduling.IndexingSchedule;
 import se.repos.indexing.standalone.config.SolrCoreProvider;
+import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 
@@ -44,6 +47,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 
 	private Date stillAlive;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+	private final Set<Future<CmsRepository>> executorFutures = new HashSet<Future<CmsRepository>>();
 
 	public IndexingDaemonPubSub(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider, String url) {
 		super(parentPath, parentUrl, include, solrCoreProvider);
@@ -210,6 +214,10 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 				logger.debug("Interrupted");
 				break; // abort
 			}
+			
+			// Inspect previous sync executions and terminate if one has failed.
+			// This mimics the single-thread behavior of the classic IndexingDaemon.
+			inspectFutures();
 		}
 
 		eventSource.close();
@@ -220,11 +228,30 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	
 	protected void syncRepo(CmsRepositoryLookup lookup, CmsRepository repo) {
 		
-		executorService.submit(new RepositorySyncCallable(lookup, repo));
+		Future<CmsRepository> future = executorService.submit(new RepositorySyncCallable(lookup, repo));
 		logger.info("Submitted sync for repository '{}'", repo.getName());
+		executorFutures.add(future);
 	}
 	
-	class RepositorySyncCallable implements Callable<Object>{
+	private void inspectFutures() {
+		
+		for (Future<CmsRepository> future : executorFutures ) {
+            try {
+            	if (future.isDone()) {
+            		CmsRepository repo = future.get();
+            		logger.debug("Completed sync for repository '{}'", repo.getName());
+            	}
+            } catch (InterruptedException e) {
+                logger.warn("Interrupted while inspecting execution future: {}", future, e);
+            } catch (ExecutionException e) {
+            	// Already logged with details.
+            	logger.debug("Sync failed: ", e);
+            	throw new RuntimeException("Sync execution failed.", e);
+            }
+        }
+	}
+	
+	class RepositorySyncCallable implements Callable<CmsRepository>{
 
 		private CmsRepositoryLookup lookup;
 		private CmsRepository repo;
@@ -235,7 +262,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		}
 		
 		@Override
-		public Object call() throws Exception {
+		public CmsRepository call() throws Exception {
 			
 			logger.info("Starting sync for repository '{}'", repo.getName());
 			
@@ -252,7 +279,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 				logger.error("Sync failed with Error for repository '{}'", repo.getName(), error);
 				throw error;
 			}
-			return null;
+			return repo;
 		}
 	}
 }
