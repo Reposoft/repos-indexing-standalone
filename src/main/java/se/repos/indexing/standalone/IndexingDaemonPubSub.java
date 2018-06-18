@@ -8,6 +8,8 @@ import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -47,7 +49,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 
 	private Date stillAlive;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final Set<Future<CmsRepository>> executorFutures = new HashSet<Future<CmsRepository>>();
+	private final Set<Future<CmsRepository>> executorFutures = new LinkedHashSet<Future<CmsRepository>>();
 
 	public IndexingDaemonPubSub(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider, String url) {
 		super(parentPath, parentUrl, include, solrCoreProvider);
@@ -235,10 +237,12 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	
 	private void inspectFutures() {
 		
-		for (Future<CmsRepository> future : executorFutures ) {
+		for (Iterator<Future<CmsRepository>> i = executorFutures.iterator(); i.hasNext(); ) {
+			Future<CmsRepository> future = i.next();
             try {
             	if (future.isDone()) {
             		CmsRepository repo = future.get();
+            		i.remove();
             		logger.debug("Completed sync for repository '{}'", repo.getName());
             	}
             } catch (InterruptedException e) {
