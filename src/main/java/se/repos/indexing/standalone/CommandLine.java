@@ -94,8 +94,12 @@ public class CommandLine {
 		
 		if (options.getSVNPubSubUrl() != null && options.getParentPath() != null) {
 			logger.info("SVNPubSub: {}", options.getSVNPubSubUrl());
-			runDaemonPubSub(options, solrCoreProvider);
-			return;
+			try {
+				runDaemonPubSub(options, solrCoreProvider);
+			} catch (Throwable e) {
+				System.exit(1);
+			}
+			System.exit(0);
 		}
 		
 		if (options.getParentPath() != null) {
