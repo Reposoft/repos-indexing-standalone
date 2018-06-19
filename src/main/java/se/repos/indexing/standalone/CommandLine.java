@@ -97,13 +97,16 @@ public class CommandLine {
 			try {
 				runDaemonPubSub(options, solrCoreProvider);
 			} catch (Throwable e) {
+				logger.error("Terminating indexing service.");
 				System.exit(1);
 			}
+			logger.info("Terminating indexing service.");
 			System.exit(0);
 		}
 		
 		if (options.getParentPath() != null) {
 			runDaemon(options, solrCoreProvider);
+			logger.info("Terminating indexing service.");
 			return;
 		}
 		
