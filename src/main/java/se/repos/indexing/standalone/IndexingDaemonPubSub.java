@@ -121,6 +121,8 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 
 				logger.info("commit event: {}", inboundEvent.readData());
 				// Not really interested in the JSON data, just triggering sync of all repositories.
+				// When repo is svnsynced the revprops might not have been set yet when indexing starts.
+				// Empty committer revprop could be an indicator.
 				for (CmsRepository repo : loaded.keySet()) {
 					syncRepo(lookup, repo);
 				}
