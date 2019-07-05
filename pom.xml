@@ -88,6 +88,17 @@
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-xmlsource</artifactId>
+			<version>0.18.6-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jdom2</artifactId>
+					<groupId>org.jdom</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
 			<version>0.2.1</version>
  			<exclusions>
