@@ -35,6 +35,8 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 	public static final String CONFIG_XML_MAX_FILESIZE = "se.simonsoft.cms.indexing.xml.maxFilesize";
 	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 3 * 1048576; // Setting a conservative default.
 	
+	public static final String CONFIG_XML_SUPPRESSRIDBEFORE = "se.simonsoft.cms.indexing.xml.suppressRidBefore";
+	
 	@Override
 	protected void configure() {
 		bind(Processor.class).toProvider(SaxonConfiguration.class);
@@ -74,6 +76,12 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 			maxFilesize = Integer.parseInt(maxFilesizeStr);
 		}
 		bind(Integer.class).annotatedWith(Names.named(CONFIG_XML_MAX_FILESIZE)).toInstance(maxFilesize);
+		
+		String suppressRidBefore = System.getProperty(CONFIG_XML_SUPPRESSRIDBEFORE);
+		if (suppressRidBefore == null) {
+			suppressRidBefore = "";
+		}
+		bind(String.class).annotatedWith(Names.named(CONFIG_XML_SUPPRESSRIDBEFORE)).toInstance(suppressRidBefore);
 	}
 
 }
