@@ -33,7 +33,7 @@ import com.google.inject.name.Names;
 public class IndexingHandlersModuleXml extends AbstractModule {
 
 	public static final String CONFIG_XML_MAX_FILESIZE = "se.simonsoft.cms.indexing.xml.maxFilesize";
-	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 3 * 1048576; // Setting a conservative default.
+	public static final int CONFIG_XML_MAX_FILESIZE_DEFAULT = 10 * 1024*1024; // Raised default to 10M (from 3M).
 	
 	public static final String CONFIG_XML_SUPPRESSRIDBEFORE = "se.simonsoft.cms.indexing.xml.suppressRidBefore";
 	
