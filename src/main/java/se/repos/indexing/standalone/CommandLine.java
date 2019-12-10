@@ -77,6 +77,7 @@ public class CommandLine {
 			throw new IllegalArgumentException("Log level argument is deprecated. Set -Dlog4j.configurationFile or -Dse.repos.loglevel=debug instead.");
 		}
 		
+		logger.info("JVM version: {} {}", System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
 		logger.info("JVM default charset: {}", Charset.defaultCharset());
 		if (CmsComponents.logAllVersions() == 1) {
 			// for bundled jar
