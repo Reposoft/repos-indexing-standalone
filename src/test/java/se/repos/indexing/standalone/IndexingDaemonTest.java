@@ -12,7 +12,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -23,12 +23,12 @@ import se.simonsoft.cms.item.CmsRepository;
 public class IndexingDaemonTest {
 
 	SolrCoreProvider solrCoreProvider;
-	SolrServer solrServer;
+	SolrClient solrServer;
 	
 	
 	@Before
 	public void initMocks() {
-		solrServer = Mockito.mock(SolrServer.class);
+		solrServer = Mockito.mock(SolrClient.class);
 		solrCoreProvider = Mockito.mock(SolrCoreProvider.class);
 		when(solrCoreProvider.getSolrCore(Mockito.anyString())).thenReturn(solrServer);
 	}

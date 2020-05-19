@@ -3,10 +3,10 @@
  */
 package se.repos.indexing.standalone.config;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 
 public interface SolrCoreProvider {
 
-	public SolrServer getSolrCore(String coreName);
+	public SolrClient getSolrCore(String coreName);
 	
 }
