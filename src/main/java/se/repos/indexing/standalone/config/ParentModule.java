@@ -3,7 +3,7 @@
  */
 package se.repos.indexing.standalone.config;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
 
 import se.repos.indexing.scheduling.IndexingSchedule;
@@ -26,7 +26,7 @@ public class ParentModule extends AbstractModule {
 	@Override
 	protected void configure() {
 		for (String core : new String[]{"repositem", "reposxml"}) {
-			bind(SolrServer.class).annotatedWith(Names.named(core)).toInstance(solrCoreProvider.getSolrCore(core));
+			bind(SolrClient.class).annotatedWith(Names.named(core)).toInstance(solrCoreProvider.getSolrCore(core));
 		}
 		bind(IndexingSchedule.class).to(IndexingScheduleBlockingOnly.class);
 		// this is an all-inspection context

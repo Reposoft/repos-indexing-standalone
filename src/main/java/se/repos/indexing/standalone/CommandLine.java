@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -144,7 +144,7 @@ public class CommandLine {
 			List<String> cores = options.getArguments();
 			for (String corename : cores) {
 				logger.info("Optimizing core {}", corename);
-				SolrServer core = solrCoreProvider.getSolrCore(corename);
+				SolrClient core = solrCoreProvider.getSolrCore(corename);
 				new SolrOptimize(core).run();
 			}
 			logger.info("Optimize completed");

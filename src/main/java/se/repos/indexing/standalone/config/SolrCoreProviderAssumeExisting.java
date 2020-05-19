@@ -3,7 +3,7 @@
  */
 package se.repos.indexing.standalone.config;
 
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.impl.BinaryRequestWriter;
 
 import se.repos.indexing.solrj.HttpSolrServerNamed;
@@ -29,7 +29,7 @@ public class SolrCoreProviderAssumeExisting implements SolrCoreProvider {
 	 * @return reuses the same instace for all provider calls
 	 */
 	@Override
-	public SolrServer getSolrCore(String coreName) {
+	public SolrClient getSolrCore(String coreName) {
 		String coreUrl = solrUrl + coreName;
 		// provide useful toString, helps when there's multiple cores in the handler chain
 		HttpSolrServerNamed server = new se.repos.indexing.solrj.HttpSolrServerNamed(coreUrl).setName(coreName);
