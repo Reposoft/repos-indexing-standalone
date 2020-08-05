@@ -50,6 +50,19 @@
 	<dependencies>
 
 		<dependency>
+			<groupId>se.simonsoft</groupId>
+			<artifactId>cms-indexing-xml</artifactId>
+			<version>0.20.0-SNAPSHOT</version>
+			<exclusions>
+			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
+            <exclusion>
+                <groupId>javax.ws.rs</groupId>
+                <artifactId>jsr311-api</artifactId>
+            </exclusion>
+            </exclusions>
+		</dependency>
+
+		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing-fulltext</artifactId>
 			<version>0.14.0-SNAPSHOT</version>
@@ -75,18 +88,6 @@
 			<version>2.8.0-SNAPSHOT</version>
 		</dependency>
         
-		<dependency>
-			<groupId>se.simonsoft</groupId>
-			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.20.0-SNAPSHOT</version>
-			<exclusions>
-			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
-            <exclusion>
-                <groupId>javax.ws.rs</groupId>
-                <artifactId>jsr311-api</artifactId>
-            </exclusion>
-            </exclusions>
-		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
