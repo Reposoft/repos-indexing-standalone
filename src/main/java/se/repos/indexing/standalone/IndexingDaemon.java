@@ -4,7 +4,6 @@
 package se.repos.indexing.standalone;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.channels.NonWritableChannelException;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -120,7 +119,7 @@ public class IndexingDaemon implements Runnable {
 		previous.remove(repo);
 		for (File r : known.keySet()) {
 			if (repo.equals(known.get(r))) {
-				known.remove(repo);
+				known.remove(r);
 			}
 		}
 		logger.info("Removed repository {}", repo.getUrl());
