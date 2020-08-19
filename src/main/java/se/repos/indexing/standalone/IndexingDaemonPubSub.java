@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright (C) 2004-2012 Repos Mjukvara AB
  */
 package se.repos.indexing.standalone;
 
 import java.io.File;
 import java.nio.channels.NonWritableChannelException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.scheduling.IndexingSchedule;
 import se.repos.indexing.standalone.config.SolrCoreProvider;
-import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 
@@ -151,43 +149,26 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
 		schedule.start();
 
-		// Keeping non-pubsub discovery for now.
-		try { // Mostly for keeping old indentation.
-			if (discovery) {
-				discover();
+		// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
+		Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
+		for (CmsRepository repo : loaded.keySet()) {
+			if (!indexingEnabled(repo)) {
+				removeRepos.add(repo);
 			}
-			// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
-			Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
-			for (CmsRepository repo : loaded.keySet()) {
-				if (!indexingEnabled(repo)) {
-					removeRepos.add(repo);
-				}
-			}
-			// Actually remove them, avoiding concurrent modification.
-			for (CmsRepository repo : removeRepos) {
-				removeRepository(repo);
-			}
-		} catch (Exception e) {
-			logger.error("Discovery failed: {}", e.getMessage(), e);
-			throw new RuntimeException("Discovery failed.", e);
+		}
+		// Actually remove them, avoiding concurrent modification.
+		for (CmsRepository repo : removeRepos) {
+			removeRepository(repo);
 		}
 
 		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
 		
 		EventSource eventSource = startEventSource();
 		while (true) {
-			reposToRemove = new ArrayList<CmsRepository>();
-
 			// Must always sync at least once when starting up.
 			logger.debug("Performing periodic sync.");
 			for (CmsRepository repo : loaded.keySet()) {
 				syncRepo(lookup, repo);
-			}
-
-			logger.debug("Will remove {} repos", reposToRemove.size());
-			for (CmsRepository repo : reposToRemove) {
-				logger.debug("Removing deleted repository {}", repo);
-				removeRepository(repo);
 			}
 
 			Boolean isAlive = isEventSourceAlive();

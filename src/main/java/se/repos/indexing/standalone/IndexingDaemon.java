@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2004-2012 Repos Mjukvara AB
  */
 package se.repos.indexing.standalone;
@@ -6,7 +6,6 @@ package se.repos.indexing.standalone;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.channels.NonWritableChannelException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,11 +49,6 @@ public class IndexingDaemon implements Runnable {
 	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<CmsRepository, ReposIndexing>(new CmsRepositoryComparator());
 	protected Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
 	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
-	protected List<CmsRepository> reposToRemove = null;
-	
-	protected boolean discovery = false;
-	
-	protected FileFilter discoveryFilter = new DiscoveryFilterDefault();
 
 	protected File parentPath;
 
@@ -62,9 +56,9 @@ public class IndexingDaemon implements Runnable {
 	
 	/**
 	 * 
-	 * @param parentPath
-	 * @param parentUrl
-	 * @param include Empty to discover and re-discover repositories
+	 * @param parentPath SVN parent path
+	 * @param parentUrl Equivalent URL including the trailing slash
+	 * @param include Repository names to be included when indexing
 	 */
 	public IndexingDaemon(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider) {
 		
@@ -80,34 +74,16 @@ public class IndexingDaemon implements Runnable {
 		global = getGlobal(solrCoreProvider);
 		
 		if (include.size() == 0) {
-			setDiscovery(true);
-			logger.info("Discovery enabled at {} with parent URL {}", parentPath, parentUrl);
+			throw new IllegalArgumentException("At least one or more repositories have to be supplied");
 		} else {
-			List<String> names = include;
-			for (String name :  names) {
+			for (String name : include) {
 				File path = new File(parentPath, name);
 				String url = parentUrl + name;
 				addRepository(path, url);
 			}
 		}
 	}
-	
-	public void setDiscovery(boolean enable) {
-		if (enable == false) {
-			this.discovery = false;
-		}
-		setDiscovery(new DiscoveryFilterDefault());
-	}
 
-	public void setDiscovery(FileFilter discoveryFilter) {
-		this.discovery = true;
-		this.discoveryFilter = discoveryFilter;
-	}	
-	
-	public boolean isDiscoveryEnabled() {
-		return discovery;
-	}
-	
 	/**
 	 * @param wait btw polls in milliseconds
 	 */
@@ -169,18 +145,6 @@ public class IndexingDaemon implements Runnable {
 		return global.createChildInjector(backendModule, indexingModule, indexingHandlersModule);		
 	}
 
-	protected void discover() {
-		File[] folders = parentPath.listFiles(discoveryFilter);
-		for (File f : folders) {
-			String name = f.getName();
-			String url = parentUrl + name;
-			if (!known.containsKey(f)) {
-				logger.info("Discovered repository folder {}, named {}", f, name);
-				addRepository(f, url);
-			}
-		}
-	}
-	
 	/**
 	 * Runs all repositories.
 	 */
@@ -192,41 +156,24 @@ public class IndexingDaemon implements Runnable {
 		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
 		schedule.start();
 		
-		try { // Mostly for keeping old indentation.
-			if (discovery) {
-				discover();
+		// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
+		Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
+		for (CmsRepository repo : loaded.keySet()) {
+			if (!indexingEnabled(repo)) {
+				removeRepos.add(repo);
 			}
-			// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
-			Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
-			for (CmsRepository repo : loaded.keySet()) {
-				if (!indexingEnabled(repo)) {
-					removeRepos.add(repo);
-				}
-			}
-			// Actually remove them, avoiding concurrent modification.
-			for (CmsRepository repo : removeRepos) {
-				removeRepository(repo);
-			}
-		} catch (Exception e) {
-			logger.error("Discovery failed: {}", e.getMessage(), e);
-			throw new RuntimeException("Discovery failed.", e);
 		}
-		
+		// Actually remove them, avoiding concurrent modification.
+		for (CmsRepository repo : removeRepos) {
+			removeRepository(repo);
+		}
+
 		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
 		while (true) {
 			int runs = 0;
-			reposToRemove = new ArrayList<CmsRepository>();
-			
 			for (CmsRepository repo : loaded.keySet()) {
 				runs += runOnce(lookup, repo) ? 1 : 0;
 			}
-			
-			logger.debug("Will remove {} repos", reposToRemove.size());
-			for (CmsRepository repo: reposToRemove) {
-				logger.debug("Removing deleted repository {}", repo);
-				removeRepository(repo);
-			}
-
 
 			if (wait == 0) {
 				break;
@@ -270,7 +217,6 @@ public class IndexingDaemon implements Runnable {
 			}
 			logger.info("Repository {} not found", repo);
 			logger.warn("Removing repository {} but not its index contents", repo.getName());
-			reposToRemove.add(repo);
 			return false;
 		}
 		if (head.equals(previous.get(repo))) {
@@ -305,36 +251,6 @@ public class IndexingDaemon implements Runnable {
 		return true;
 	}
 
-	public static class DiscoveryFilterDefault implements FileFilter {
-
-		public static String[] SKIP_SUFFIX = new String[] {".old", ".org", ".noindex"};
-
-		private Set<File> skipped = new HashSet<File>();
-		
-		@Override
-		public boolean accept(File file) {
-			if (!file.isDirectory()) {
-				return false;
-			}
-			for (String skip : SKIP_SUFFIX) {
-				if (file.getName().contains(skip)) {
-					if (skipped.add(file)) {
-						logger.info("Skipping potential repository folder {} because name contains {}", file, skip);
-					}
-					return false;
-				}
-			}
-			if (!new File(file, "format").exists()) {
-				if (skipped.add(file)) {
-					logger.info("Skipping potential repository folder {} because it doesn't look like a recognized repository format", file);
-				}
-				return false;
-			}
-			return true;
-		}
-		
-	}
-	
 	static class CmsRepositoryComparator implements java.util.Comparator<CmsRepository> {
 		@Override
 		public int compare(CmsRepository o1, CmsRepository o2) {
