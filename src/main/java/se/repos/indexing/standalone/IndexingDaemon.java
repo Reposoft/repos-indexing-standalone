@@ -44,10 +44,10 @@ public class IndexingDaemon implements Runnable {
 	
 	protected Injector global;
 	
-	protected Map<File, CmsRepository> known = new HashMap<File, CmsRepository>();
-	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<CmsRepository, ReposIndexing>(new CmsRepositoryComparator());
-	protected Map<CmsRepository, RepoRevision> previous = new HashMap<CmsRepository, RepoRevision>();
-	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<CmsRepository, CmsContentsReader>();
+	protected Map<File, CmsRepository> known = new HashMap<>();
+	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<>(new CmsRepositoryComparator());
+	protected Map<CmsRepository, RepoRevision> previous = new HashMap<>();
+	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<>();
 
 	protected File parentPath;
 
@@ -156,7 +156,7 @@ public class IndexingDaemon implements Runnable {
 		schedule.start();
 		
 		// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
-		Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
+		Set<CmsRepository> removeRepos = new HashSet<>();
 		for (CmsRepository repo : loaded.keySet()) {
 			if (!indexingEnabled(repo)) {
 				removeRepos.add(repo);

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2004-2012 Repos Mjukvara AB
  */
 package se.repos.indexing.standalone;
@@ -17,7 +17,7 @@ public class CommandOptions {
 		resync,
 		clear,
 		optimize
-	};
+	}
 	
 	@Option(name="-s",
 			usage="Solr URL, assuming multicore, for example http://localhost:8983/solr/")
