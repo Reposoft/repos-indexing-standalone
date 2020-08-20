@@ -41,11 +41,11 @@ public class CommandOptions {
     private Operation operation = Operation.sync;
 	
 	@Option(name="-p",
-			usage="Repository path. If omitted this can be the first anonymous argument.")
+			usage="Repository path in case of a single repository. One or more repository names can be supplied as anonymous arguments.")
     private File repository = null;
 	
 	@Option(name="-r",
-			usage="Revision to sync to. If omitted this can be the second anonymous argument. Defaults to head.")
+			usage="Revision to sync to. Defaults to head.")
 	private String revision = null;
 	
 	@Option(name="-w",
@@ -71,7 +71,7 @@ public class CommandOptions {
 	
     // receives other command line parameters than options
     @Argument
-    private List<String> arguments = new LinkedList<String>();	
+    private List<String> arguments = new LinkedList<>();
 	
     public String getSolrUrl() {
 		return solrUrl;

@@ -57,18 +57,16 @@ public class CommandLine {
 				if (options.getParentUrl() == null) {
 					throw new CmdLineException(parser, "Daemon mode requires parent URL", null);
 				}
-			} else if (options.getRepository() == null) {
+			}
+			if (options.getRepository() == null) {
 				if (options.getArguments().size() == 0) {
-					throw new CmdLineException(parser, "Repository not set and no unnamed argument", null);
+					throw new CmdLineException(parser, "Repository not set and no unnamed arguments supplied either", null);
 				}
 				options.setRepository(new File(options.getArguments().get(0)));
 			}
-			if (options.getRepository() != null && options.getRevision() == null && options.getArguments().size() > 1) {
-				options.setRevision(options.getArguments().get(1));
-			}
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage());
-			System.err.println("java -jar repos-indexing.jar [options...] arguments...");
+			System.err.println("java -jar repos-indexing.jar [options...] repositories...");
 			parser.printUsage(System.err);
 			return;
 		}

@@ -214,8 +214,7 @@ public class IndexingDaemon implements Runnable {
 				logger.error("Failed to lookup youngest revision: ", e);
 				throw e;
 			}
-			logger.info("Repository {} not found", repo);
-			logger.warn("Removing repository {} but not its index contents", repo.getName());
+			logger.warn("Repository {} not found", repo.getName());
 			return false;
 		}
 		if (head.equals(previous.get(repo))) {
