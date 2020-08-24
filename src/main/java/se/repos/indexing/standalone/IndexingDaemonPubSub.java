@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright (C) 2004-2012 Repos Mjukvara AB
  */
 package se.repos.indexing.standalone;
 
 import java.io.File;
 import java.nio.channels.NonWritableChannelException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,14 +23,12 @@ import javax.ws.rs.client.WebTarget;
 
 import org.glassfish.jersey.media.sse.EventListener;
 import org.glassfish.jersey.media.sse.EventSource;
-import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import se.repos.indexing.scheduling.IndexingSchedule;
 import se.repos.indexing.standalone.config.SolrCoreProvider;
-import se.simonsoft.cms.item.CmsItemId;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 
@@ -43,13 +40,13 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	
 	protected long waitCurrent = WAIT_PUBSUB_DEFAULT;
 
-	private CmsRepositoryLookup lookup;
-	private String url;
-	private WebTarget target;
+	private final CmsRepositoryLookup lookup;
+	private final String url;
+	private final WebTarget target;
 
 	private Date stillAlive;
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-	private final Set<Future<CmsRepository>> executorFutures = new LinkedHashSet<Future<CmsRepository>>();
+	private final Set<Future<CmsRepository>> executorFutures = new LinkedHashSet<>();
 
 	public IndexingDaemonPubSub(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider, String url) {
 		super(parentPath, parentUrl, include, solrCoreProvider);
@@ -94,48 +91,34 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		EventSource eventSource = EventSource.target(target).build();
 		stillAlive = null;
 		
-		EventListener listenerAlive = new EventListener() {
-			@Override
-			public void onEvent(InboundEvent inboundEvent) {
-				logger.info("stillalive event: {}", inboundEvent.readData());
-				stillAlive = new Date();
-			}
+		EventListener listenerAlive = inboundEvent -> {
+			logger.info("stillalive event: {}", inboundEvent.readData());
+			stillAlive = new Date();
 		};
 		eventSource.register(listenerAlive, "stillalive");
 		
-		EventListener listenerConnected = new EventListener() {
-			@Override
-			public void onEvent(InboundEvent inboundEvent) {
-				logger.info("connected event: {}", inboundEvent.readData());
-				stillAlive = new Date();
-			}
+		EventListener listenerConnected = inboundEvent -> {
+			logger.info("connected event: {}", inboundEvent.readData());
+			stillAlive = new Date();
 		};
 		eventSource.register(listenerConnected, "svnpubsub");
 
-		EventListener listenerCommit = new EventListener() {
-			@Override
-			public void onEvent(InboundEvent inboundEvent) {
-				if (!"commit".equals(inboundEvent.getName())) {
-					throw new IllegalStateException("Listener for commit event received: " + inboundEvent.getName());
-				}
+		EventListener listenerCommit = inboundEvent -> {
+			if (!"commit".equals(inboundEvent.getName())) {
+				throw new IllegalStateException("Listener for commit event received: " + inboundEvent.getName());
+			}
 
-				logger.info("commit event: {}", inboundEvent.readData());
-				// Not really interested in the JSON data, just triggering sync of all repositories.
-				// When repo is svnsynced the revprops might not have been set yet when indexing starts.
-				// Empty committer revprop could be an indicator.
-				for (CmsRepository repo : loaded.keySet()) {
-					syncRepo(lookup, repo);
-				}
+			logger.info("commit event: {}", inboundEvent.readData());
+			// Not really interested in the JSON data, just triggering sync of all repositories.
+			// When repo is svnsynced the revprops might not have been set yet when indexing starts.
+			// Empty committer revprop could be an indicator.
+			for (CmsRepository repo : loaded.keySet()) {
+				syncRepo(lookup, repo);
 			}
 		};
 		eventSource.register(listenerCommit, "commit");
 
-		EventListener listenerAny = new EventListener() {
-			@Override
-			public void onEvent(InboundEvent inboundEvent) {
-				logger.debug("Event {}", inboundEvent.getName());
-			}
-		};
+		EventListener listenerAny = inboundEvent -> logger.debug("Event {}", inboundEvent.getName());
 		eventSource.register(listenerAny);
 
 		eventSource.open();
@@ -151,49 +134,32 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
 		schedule.start();
 
-		// Keeping non-pubsub discovery for now.
-		try { // Mostly for keeping old indentation.
-			if (discovery) {
-				discover();
+		// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
+		Set<CmsRepository> removeRepos = new HashSet<>();
+		for (CmsRepository repo : loaded.keySet()) {
+			if (!indexingEnabled(repo)) {
+				removeRepos.add(repo);
 			}
-			// #198 Performing the evaluation of indexing:mode early during startup to make it possible to inspect the log.
-			Set<CmsRepository> removeRepos = new HashSet<CmsRepository>();
-			for (CmsRepository repo : loaded.keySet()) {
-				if (!indexingEnabled(repo)) {
-					removeRepos.add(repo);
-				}
-			}
-			// Actually remove them, avoiding concurrent modification.
-			for (CmsRepository repo : removeRepos) {
-				removeRepository(repo);
-			}
-		} catch (Exception e) {
-			logger.error("Discovery failed: {}", e.getMessage(), e);
-			throw new RuntimeException("Discovery failed.", e);
+		}
+		// Actually remove them, avoiding concurrent modification.
+		for (CmsRepository repo : removeRepos) {
+			removeRepository(repo);
 		}
 
 		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
 		
 		EventSource eventSource = startEventSource();
 		while (true) {
-			reposToRemove = new ArrayList<CmsRepository>();
-
 			// Must always sync at least once when starting up.
 			logger.debug("Performing periodic sync.");
 			for (CmsRepository repo : loaded.keySet()) {
 				syncRepo(lookup, repo);
 			}
 
-			logger.debug("Will remove {} repos", reposToRemove.size());
-			for (CmsRepository repo : reposToRemove) {
-				logger.debug("Removing deleted repository {}", repo);
-				removeRepository(repo);
-			}
-
 			Boolean isAlive = isEventSourceAlive();
 			if (isAlive == null) {
 				logger.info("PubSub not confirmed alive.");
-			} else if (isAlive.booleanValue() == true) {
+			} else if (isAlive) {
 				waitCurrent = WAIT_PUBSUB_DEFAULT;
 			} else {
 				logger.warn("PubSub connection might be down, reconnecting.");
@@ -259,8 +225,8 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	
 	class RepositorySyncCallable implements Callable<CmsRepository>{
 
-		private CmsRepositoryLookup lookup;
-		private CmsRepository repo;
+		private final CmsRepositoryLookup lookup;
+		private final CmsRepository repo;
 		
 		RepositorySyncCallable(CmsRepositoryLookup lookup, CmsRepository repo) {
 			this.lookup = lookup;

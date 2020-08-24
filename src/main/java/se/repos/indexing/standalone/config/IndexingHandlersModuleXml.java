@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) 2004-2012 Repos Mjukvara AB
  */
 package se.repos.indexing.standalone.config;
@@ -8,7 +8,6 @@ import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
 import se.repos.indexing.standalone.HandlerIndexingVersion;
-import se.simonsoft.cms.indexing.keydef.HandlerKeydef;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefExcel;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefXliff;
 import se.simonsoft.cms.indexing.xml.IndexAdminXml;
