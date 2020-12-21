@@ -26,7 +26,11 @@ import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
 import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
 import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+
 import com.google.inject.AbstractModule;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import com.google.inject.name.Names;
 
@@ -45,6 +49,10 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
+		
+		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
+		sourceBinder.addBinding("identity.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/identity.xsl")));
+		sourceBinder.addBinding("source-reuse.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/source-reuse.xsl")));
 		
 		// ticket:821 The safe choice is XmlIndexWriterSolrj.class while XmlIndexWriterSolrjBackground.class provides 25-30% better performance.
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class);
