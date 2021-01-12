@@ -8,6 +8,7 @@ import net.sf.saxon.s9api.Processor;
 import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
 import se.repos.indexing.standalone.HandlerIndexingVersion;
+import se.simonsoft.cms.indexing.abx.HandlerCategory;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefExcel;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefXliff;
 import se.simonsoft.cms.indexing.keydef.HandlerTransformTika;
@@ -65,6 +66,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		handlers.addBinding().to(HandlerKeydefXliff.class);
 		handlers.addBinding().to(HandlerKeydefExcel.class);
 		handlers.addBinding().to(HandlerTransformTika.class);
+		handlers.addBinding().to(HandlerCategory.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
 		// XML field extraction
