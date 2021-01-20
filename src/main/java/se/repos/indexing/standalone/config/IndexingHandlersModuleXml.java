@@ -9,6 +9,7 @@ import se.repos.indexing.IndexingItemHandler;
 import se.repos.indexing.fulltext.HandlerFulltext;
 import se.repos.indexing.standalone.HandlerIndexingVersion;
 import se.simonsoft.cms.indexing.abx.HandlerCategory;
+import se.simonsoft.cms.indexing.abx.HandlerClassification;
 import se.simonsoft.cms.indexing.abx.HandlerTitleSelection;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefExcel;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefXliff;
@@ -68,6 +69,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		handlers.addBinding().to(HandlerKeydefExcel.class);
 		handlers.addBinding().to(HandlerTransformTika.class);
 		handlers.addBinding().to(HandlerTitleSelection.class);
+		handlers.addBinding().to(HandlerClassification.class);
 		handlers.addBinding().to(HandlerCategory.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
