@@ -26,6 +26,7 @@ import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
 import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
+import se.simonsoft.cms.xmlsource.transform.function.GetLogicalId;
 import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
 import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
 
@@ -51,6 +52,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		transformerFunctions.addBinding().to(GetChecksum.class);
 		transformerFunctions.addBinding().to(GetPegRev.class);
 		transformerFunctions.addBinding().to(WithPegRev.class);
+		transformerFunctions.addBinding().to(GetLogicalId.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
 		
 		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
