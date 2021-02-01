@@ -18,7 +18,9 @@ import org.tmatesoft.svn.util.Version;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
@@ -155,7 +157,7 @@ public class CommandLine {
 			schedule.start();
 		}
 		
-		CmsRepositoryLookup lookup = repositoryContext.getInstance(CmsRepositoryLookup.class);
+		CmsRepositoryLookup lookup = repositoryContext.getInstance(Key.get(CmsRepositoryLookup.class, Names.named("inspection")));
 		RepoRevision revision = getRevision(options.getRevision(), repository, lookup);
 		
 		indexing.sync(revision);

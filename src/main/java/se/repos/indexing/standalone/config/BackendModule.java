@@ -35,7 +35,9 @@ public class BackendModule extends AbstractModule {
 		
 		// no longer global, http communication will only be per-repo.
 		bind(SVNLookClient.class).toProvider(SvnlookClientProviderStateless.class);
-		bind(CmsRepositoryLookup.class).to(CmsRepositoryLookupSvnkitLook.class);
+		// Likely not possible to bind non-annotated CmsRepositoryLookup in combination with test framework.
+		// Potentially remove annotation "inspection" after completed move from svnlook to http communication.
+		//bind(CmsRepositoryLookup.class).to(CmsRepositoryLookupSvnkitLook.class);
 		
 		// the old name distinguisher when mixed with user-level webapp, deprecated
 		bind(CmsRepositoryLookup.class).annotatedWith(Names.named("inspection")).to(CmsRepositoryLookupSvnkitLook.class);

@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
@@ -109,7 +111,7 @@ public class IndexingDaemon implements Runnable {
 		Injector context = getSvn(global, repository);
 		ReposIndexing indexing = context.getInstance(ReposIndexing.class);
 		loaded.put(repository, indexing);
-		CmsRepositoryLookup lookup = context.getInstance(CmsRepositoryLookup.class);
+		CmsRepositoryLookup lookup = context.getInstance(Key.get(CmsRepositoryLookup.class, Names.named("inspection")));
 		repositoryLookups.put(repository, lookup);
 		CmsContentsReader contents = context.getInstance(CmsContentsReader.class);
 		contentsReaders.put(repository, contents);
