@@ -106,7 +106,11 @@ public class CommandLine {
 		}
 		
 		if (options.getParentPath() != null) {
-			runDaemon(options, solrCoreProvider);
+			try {
+				runDaemon(options, solrCoreProvider);
+			} catch (Error e) {
+				logger.error("Indexing service daemon failed: {}", e.getMessage(), e);
+			}
 			logger.info("Terminating indexing service.");
 			return;
 		}
