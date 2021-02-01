@@ -4,16 +4,12 @@
 package se.repos.indexing.standalone.config;
 
 import org.apache.solr.client.solrj.SolrClient;
-import org.tmatesoft.svn.core.wc.admin.SVNLookClient;
-
-import se.repos.indexing.scheduling.IndexingSchedule;
-import se.repos.indexing.scheduling.IndexingScheduleBlockingOnly;
-import se.simonsoft.cms.backend.svnkit.svnlook.CmsRepositoryLookupSvnkitLook;
-import se.simonsoft.cms.backend.svnkit.svnlook.SvnlookClientProviderStateless;
-import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
+
+import se.repos.indexing.scheduling.IndexingSchedule;
+import se.repos.indexing.scheduling.IndexingScheduleBlockingOnly;
 
 public class ParentModule extends AbstractModule {
 
@@ -30,8 +26,10 @@ public class ParentModule extends AbstractModule {
 		}
 		bind(IndexingSchedule.class).to(IndexingScheduleBlockingOnly.class);
 		// this is an all-inspection context
+		/* #919 Preparing for replacing svnlook with http. No communication in global context.
 		bind(SVNLookClient.class).toProvider(SvnlookClientProviderStateless.class);
 		bind(CmsRepositoryLookup.class).to(CmsRepositoryLookupSvnkitLook.class);
+		*/
 	}
 	
 }
