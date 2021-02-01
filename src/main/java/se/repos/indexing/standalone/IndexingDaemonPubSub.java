@@ -40,7 +40,6 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	
 	protected long waitCurrent = WAIT_PUBSUB_DEFAULT;
 
-	private final CmsRepositoryLookup lookup;
 	private final String url;
 	private final WebTarget target;
 
@@ -52,8 +51,6 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		super(parentPath, parentUrl, include, solrCoreProvider);
 		this.url = url;
 
-		lookup = global.getInstance(CmsRepositoryLookup.class);
-		
 		logger.debug("Preparing EventSource");
 		Client client = ClientBuilder.newBuilder().register(SseFeature.class).build();
 		target = client.target(this.url);
@@ -113,6 +110,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 			// When repo is svnsynced the revprops might not have been set yet when indexing starts.
 			// Empty committer revprop could be an indicator.
 			for (CmsRepository repo : loaded.keySet()) {
+				CmsRepositoryLookup lookup = repositoryLookups.get(repo);
 				syncRepo(lookup, repo);
 			}
 		};
@@ -153,6 +151,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 			// Must always sync at least once when starting up.
 			logger.debug("Performing periodic sync.");
 			for (CmsRepository repo : loaded.keySet()) {
+				CmsRepositoryLookup lookup = repositoryLookups.get(repo);
 				syncRepo(lookup, repo);
 			}
 
