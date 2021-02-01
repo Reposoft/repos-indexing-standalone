@@ -18,7 +18,9 @@ import org.tmatesoft.svn.util.Version;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
@@ -96,7 +98,7 @@ public class CommandLine {
 			try {
 				runDaemonPubSub(options, solrCoreProvider);
 			} catch (Throwable e) {
-				logger.error("Terminating indexing service.");
+				logger.error("Terminating indexing service.", e);
 				System.exit(1);
 			}
 			logger.info("Terminating indexing service.");
@@ -104,7 +106,12 @@ public class CommandLine {
 		}
 		
 		if (options.getParentPath() != null) {
-			runDaemon(options, solrCoreProvider);
+			try {
+				runDaemon(options, solrCoreProvider);
+			} catch (Throwable e) {
+				logger.error("Terminating indexing service.", e);
+				System.exit(1);
+			}
 			logger.info("Terminating indexing service.");
 			return;
 		}
@@ -155,7 +162,7 @@ public class CommandLine {
 			schedule.start();
 		}
 		
-		CmsRepositoryLookup lookup = repositoryContext.getInstance(CmsRepositoryLookup.class);
+		CmsRepositoryLookup lookup = repositoryContext.getInstance(Key.get(CmsRepositoryLookup.class, Names.named("inspection")));
 		RepoRevision revision = getRevision(options.getRevision(), repository, lookup);
 		
 		indexing.sync(revision);

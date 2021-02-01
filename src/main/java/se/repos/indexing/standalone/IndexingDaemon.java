@@ -18,7 +18,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Key;
 import com.google.inject.Module;
+import com.google.inject.name.Names;
 
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.scheduling.IndexingSchedule;
@@ -47,6 +49,7 @@ public class IndexingDaemon implements Runnable {
 	protected Map<File, CmsRepository> known = new HashMap<>();
 	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<>(new CmsRepositoryComparator());
 	protected Map<CmsRepository, RepoRevision> previous = new HashMap<>();
+	protected Map<CmsRepository, CmsRepositoryLookup> repositoryLookups = new HashMap<>();
 	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<>();
 
 	protected File parentPath;
@@ -108,6 +111,8 @@ public class IndexingDaemon implements Runnable {
 		Injector context = getSvn(global, repository);
 		ReposIndexing indexing = context.getInstance(ReposIndexing.class);
 		loaded.put(repository, indexing);
+		CmsRepositoryLookup lookup = context.getInstance(Key.get(CmsRepositoryLookup.class, Names.named("inspection")));
+		repositoryLookups.put(repository, lookup);
 		CmsContentsReader contents = context.getInstance(CmsContentsReader.class);
 		contentsReaders.put(repository, contents);
 		logger.info("Added repository {} for admin path {}", repository.getUrl(), repository.getAdminPath());
@@ -150,8 +155,6 @@ public class IndexingDaemon implements Runnable {
 	@Override
 	public void run() {
 		
-		CmsRepositoryLookup lookup = global.getInstance(CmsRepositoryLookup.class);
-		
 		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
 		schedule.start();
 		
@@ -171,6 +174,7 @@ public class IndexingDaemon implements Runnable {
 		while (true) {
 			int runs = 0;
 			for (CmsRepository repo : loaded.keySet()) {
+				CmsRepositoryLookup lookup = repositoryLookups.get(repo);
 				runs += runOnce(lookup, repo) ? 1 : 0;
 			}
 
