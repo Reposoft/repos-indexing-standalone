@@ -3,17 +3,12 @@
  */
 package se.repos.indexing.standalone.config;
 
-import org.tmatesoft.svn.core.auth.ISVNAuthenticationManager;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.name.Names;
 
-import se.repos.restclient.RestAuthentication;
-import se.repos.restclient.auth.RestAuthenticationSimple;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
-import se.simonsoft.cms.backend.svnkit.config.SvnKitAuthManagerProvider;
-import se.simonsoft.cms.backend.svnkit.config.SvnKitLowLevelProvider;
 import se.simonsoft.cms.backend.svnkit.info.CmsRepositoryLookupSvnkit;
 import se.simonsoft.cms.backend.svnkit.info.change.CmsChangesetReaderSvnkit;
 import se.simonsoft.cms.backend.svnkit.info.change.CmsContentsReaderSvnkit;
@@ -38,9 +33,7 @@ public class BackendModule extends AbstractModule {
 		bind(CmsRepositorySvn.class).toInstance(repository);
 		
 		// no longer global, http communication will only be per-repo.
-		bind(RestAuthentication.class).toInstance(new RestAuthenticationSimple("repos-indexing", "bogus"));
-		bind(ISVNAuthenticationManager.class).toProvider(SvnKitAuthManagerProvider.class);
-		bind(SVNRepository.class).toProvider(SvnKitLowLevelProvider.class);
+		bind(SVNRepository.class).toProvider(SvnKitRepositoryProvider.class);
 		
 		// Likely not possible to bind non-annotated CmsRepositoryLookup in combination with test framework.
 		// Potentially remove annotation "inspection" after completed move from svnlook to http communication.
