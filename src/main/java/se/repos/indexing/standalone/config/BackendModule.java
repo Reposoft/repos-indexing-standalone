@@ -12,8 +12,8 @@ import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.backend.svnkit.info.CmsRepositoryLookupSvnkit;
 import se.simonsoft.cms.backend.svnkit.info.change.CmsChangesetReaderSvnkit;
 import se.simonsoft.cms.backend.svnkit.info.change.CmsContentsReaderSvnkit;
-import se.simonsoft.cms.backend.svnkit.svnlook.CommitRevisionCache;
-import se.simonsoft.cms.backend.svnkit.svnlook.CommitRevisionCacheDefault;
+import se.simonsoft.cms.backend.svnkit.info.change.CommitRevisionCache;
+import se.simonsoft.cms.backend.svnkit.info.change.CommitRevisionCacheRepo;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 import se.simonsoft.cms.item.inspection.CmsChangesetReader;
@@ -43,7 +43,7 @@ public class BackendModule extends AbstractModule {
 		bind(CmsChangesetReader.class).to(CmsChangesetReaderSvnkit.class);
 		bind(CmsContentsReader.class).to(CmsContentsReaderSvnkit.class);
 		
-		bind(CommitRevisionCache.class).to(CommitRevisionCacheDefault.class);
+		bind(CommitRevisionCache.class).toInstance(new CommitRevisionCacheRepo()); // Bind an instance of the cache, per-repo.
 	}
 	
 }
