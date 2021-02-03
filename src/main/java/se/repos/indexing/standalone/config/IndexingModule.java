@@ -3,18 +3,16 @@
  */
 package se.repos.indexing.standalone.config;
 
+import com.google.inject.AbstractModule;
+
 import se.repos.indexing.IndexAdmin;
 import se.repos.indexing.ReposIndexing;
 import se.repos.indexing.item.ItemContentBufferStrategy;
 import se.repos.indexing.item.ItemPropertiesBufferStrategy;
 import se.repos.indexing.repository.IndexAdminPerRepositoryRepositem;
 import se.repos.indexing.repository.ReposIndexingPerRepository;
-import se.repos.indexing.twophases.ItemContentsMemorySizeLimit;
+import se.repos.indexing.twophases.ItemContentsStream;
 import se.repos.indexing.twophases.ItemPropertiesImmediate;
-
-import com.google.inject.AbstractModule;
-import com.google.inject.name.Names;
-
 import se.simonsoft.cms.item.indexing.IdStrategy;
 import se.simonsoft.cms.item.indexing.IdStrategyDefault;
 
@@ -27,8 +25,11 @@ public class IndexingModule extends AbstractModule {
 		
 		bind(IdStrategy.class).to(IdStrategyDefault.class);
 		
+		/*
 		bind(Integer.class).annotatedWith(Names.named("indexingFilesizeInMemoryLimitBytes")).toInstance(10 * 1024 * 1024);
 		bind(ItemContentBufferStrategy.class).to(ItemContentsMemorySizeLimit.class);
+		*/
+		bind(ItemContentBufferStrategy.class).to(ItemContentsStream.class);
 		bind(ItemPropertiesBufferStrategy.class).to(ItemPropertiesImmediate.class);
 	}
 
