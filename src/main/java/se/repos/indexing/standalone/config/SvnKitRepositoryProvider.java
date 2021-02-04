@@ -5,6 +5,7 @@ package se.repos.indexing.standalone.config;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +22,7 @@ import se.simonsoft.cms.item.CmsRepository;
  * Provides the non thread-safe SVNRepository,
  * configured with separate port and no authentication.
  */
+@Singleton // in each per-repo context
 public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 
 	private SVNURL repositoryRootUrl;
