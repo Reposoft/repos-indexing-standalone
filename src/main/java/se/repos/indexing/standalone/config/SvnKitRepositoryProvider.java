@@ -26,7 +26,7 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 	private SVNURL repositoryRootUrl;
 	public static boolean httpV2Enabled = true;
 	
-	private static ThreadLocal<SVNRepository> r = new ThreadLocal<SVNRepository>();
+	private ThreadLocal<SVNRepository> r = new ThreadLocal<SVNRepository>();
 
 	static {
 		// Needs to be done once
