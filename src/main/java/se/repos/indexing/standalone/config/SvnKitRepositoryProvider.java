@@ -5,6 +5,7 @@ package se.repos.indexing.standalone.config;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import javax.inject.Singleton;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +22,13 @@ import se.simonsoft.cms.item.CmsRepository;
  * Provides the non thread-safe SVNRepository,
  * configured with separate port and no authentication.
  */
+@Singleton // in each per-repo context
 public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 
 	private SVNURL repositoryRootUrl;
 	public static boolean httpV2Enabled = true;
+	
+	private ThreadLocal<SVNRepository> r = new ThreadLocal<SVNRepository>();
 
 	static {
 		// Needs to be done once
@@ -52,7 +56,14 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 	
 	@Override
 	public SVNRepository get() {
-		return getNewSvnRepository(repositoryRootUrl);
+		// Keep one instance for each thread.
+		SVNRepository repo = r.get();
+		if (repo != null) {
+			return repo;
+		}
+		repo = getNewSvnRepository(repositoryRootUrl);
+		r.set(repo);
+		return repo;
 	}
 
 	protected SVNRepository getNewSvnRepository(SVNURL rootUrl) {
@@ -65,8 +76,10 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		// #938 Enable SVNKit HttpV2 for users of the low-level provider.
 		if (httpV2Enabled && file instanceof DAVRepository) {
 			DAVRepository dav = (DAVRepository) file; 
-			dav.setHttpV2Enabled(true);
-			logger.debug("Enabled HttpV2 support in DAVRepository instance.");
+			if (!dav.isHttpV2Enabled()) {
+				dav.setHttpV2Enabled(true);
+				logger.info("Enabled HttpV2 support in DAVRepository instance: {}", rootUrl);
+			}
 		}
 		return file;
 	}
