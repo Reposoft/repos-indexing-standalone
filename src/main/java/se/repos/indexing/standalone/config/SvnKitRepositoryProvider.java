@@ -13,8 +13,7 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepository;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-import org.tmatesoft.svn.core.wc.DefaultSVNRepositoryPool;
-import org.tmatesoft.svn.core.wc.ISVNRepositoryPool;
+import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import se.simonsoft.cms.item.CmsRepository;
 
@@ -26,7 +25,8 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 
 	private SVNURL repositoryRootUrl;
 	public static boolean httpV2Enabled = true;
-	private final ISVNRepositoryPool pool;
+	
+	private static ThreadLocal<SVNRepository> r = new ThreadLocal<SVNRepository>();
 
 	static {
 		// Needs to be done once
@@ -50,19 +50,24 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		} catch (SVNException e) {
 			throw new IllegalArgumentException("Not a valid repository: " + repository, e);
 		}
-		this.pool = new DefaultSVNRepositoryPool(null, null);
 	}
 	
 	@Override
 	public SVNRepository get() {
-		return getNewSvnRepository(repositoryRootUrl);
+		// Keep one instance for each thread.
+		SVNRepository repo = r.get();
+		if (repo != null) {
+			return repo;
+		}
+		repo = getNewSvnRepository(repositoryRootUrl);
+		r.set(repo);
+		return repo;
 	}
 
 	protected SVNRepository getNewSvnRepository(SVNURL rootUrl) {
 		SVNRepository file;
 		try {
-			//file = SVNRepositoryFactory.create(rootUrl);
-			file = pool.createRepository(rootUrl, true);
+			file = SVNRepositoryFactory.create(rootUrl);
 		} catch (SVNException e) {
 			throw new RuntimeException("Failed to initialize SvnKit repository for URL " + rootUrl);
 		}
