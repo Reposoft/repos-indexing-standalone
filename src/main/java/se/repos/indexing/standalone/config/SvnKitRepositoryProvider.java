@@ -14,6 +14,8 @@ import org.tmatesoft.svn.core.internal.io.dav.DAVRepository;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
+import org.tmatesoft.svn.core.wc.DefaultSVNRepositoryPool;
+import org.tmatesoft.svn.core.wc.ISVNRepositoryPool;
 
 import se.simonsoft.cms.item.CmsRepository;
 
@@ -25,6 +27,7 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 
 	private SVNURL repositoryRootUrl;
 	public static boolean httpV2Enabled = true;
+	private final ISVNRepositoryPool pool;
 
 	static {
 		// Needs to be done once
@@ -48,6 +51,7 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		} catch (SVNException e) {
 			throw new IllegalArgumentException("Not a valid repository: " + repository, e);
 		}
+		this.pool = new DefaultSVNRepositoryPool(null, null);
 	}
 	
 	@Override
@@ -58,7 +62,8 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 	protected SVNRepository getNewSvnRepository(SVNURL rootUrl) {
 		SVNRepository file;
 		try {
-			file = SVNRepositoryFactory.create(rootUrl);
+			//file = SVNRepositoryFactory.create(rootUrl);
+			file = pool.createRepository(rootUrl, true);
 		} catch (SVNException e) {
 			throw new RuntimeException("Failed to initialize SvnKit repository for URL " + rootUrl);
 		}
@@ -66,7 +71,7 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		if (httpV2Enabled && file instanceof DAVRepository) {
 			DAVRepository dav = (DAVRepository) file; 
 			dav.setHttpV2Enabled(true);
-			logger.info("Enabled HttpV2 support in DAVRepository instance.");
+			logger.info("Enabled HttpV2 support in DAVRepository instance: {}", rootUrl);
 		}
 		return file;
 	}
