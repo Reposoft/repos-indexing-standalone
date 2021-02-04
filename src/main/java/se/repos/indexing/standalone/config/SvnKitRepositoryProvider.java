@@ -66,7 +66,7 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		if (httpV2Enabled && file instanceof DAVRepository) {
 			DAVRepository dav = (DAVRepository) file; 
 			dav.setHttpV2Enabled(true);
-			logger.debug("Enabled HttpV2 support in DAVRepository instance.");
+			logger.info("Enabled HttpV2 support in DAVRepository instance.");
 		}
 		return file;
 	}
