@@ -13,7 +13,6 @@ import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepository;
 import org.tmatesoft.svn.core.internal.io.dav.DAVRepositoryFactory;
 import org.tmatesoft.svn.core.io.SVNRepository;
-import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 import org.tmatesoft.svn.core.wc.DefaultSVNRepositoryPool;
 import org.tmatesoft.svn.core.wc.ISVNRepositoryPool;
 
@@ -70,8 +69,10 @@ public class SvnKitRepositoryProvider implements Provider<SVNRepository> {
 		// #938 Enable SVNKit HttpV2 for users of the low-level provider.
 		if (httpV2Enabled && file instanceof DAVRepository) {
 			DAVRepository dav = (DAVRepository) file; 
-			dav.setHttpV2Enabled(true);
-			logger.info("Enabled HttpV2 support in DAVRepository instance: {}", rootUrl);
+			if (!dav.isHttpV2Enabled()) {
+				dav.setHttpV2Enabled(true);
+				logger.info("Enabled HttpV2 support in DAVRepository instance: {}", rootUrl);
+			}
 		}
 		return file;
 	}
