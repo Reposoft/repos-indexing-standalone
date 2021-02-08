@@ -3,8 +3,6 @@
  */
 package se.repos.indexing.standalone;
 
-import java.io.File;
-import java.nio.channels.NonWritableChannelException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -47,8 +45,8 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 	private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 	private final Set<Future<CmsRepository>> executorFutures = new LinkedHashSet<>();
 
-	public IndexingDaemonPubSub(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider, String url) {
-		super(parentPath, parentUrl, include, solrCoreProvider);
+	public IndexingDaemonPubSub(String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider, String url) {
+		super(parentUrl, include, solrCoreProvider);
 		this.url = url;
 
 		logger.debug("Preparing EventSource");
@@ -239,11 +237,7 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 			
 			try {
 				runOnce(lookup, repo);
-			} catch (NonWritableChannelException e) {
-				
-				logger.info("SVNKit failed svnlook youngest, sleep and retry.");
-				Thread.sleep(200);
-				syncRepo(lookup, repo); // Retry added last in queue.
+
 			} catch (Exception e) {
 				logger.error("Sync failed for repository '{}'", repo.getName(), e);
 				throw e;

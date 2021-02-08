@@ -3,7 +3,6 @@
  */
 package se.repos.indexing.standalone;
 
-import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,9 +39,12 @@ public class CommandOptions {
     		+ "\n'optimize' - run optimize on core names given by arguments, then exit")
     private Operation operation = Operation.sync;
 	
+	// TODO: Do we need to parse a File path to the repo in order to support hook-style execution?
+	/*
 	@Option(name="-p",
 			usage="Repository path in case of a single repository. One or more repository names can be supplied as anonymous arguments.")
     private File repository = null;
+    */
 	
 	@Option(name="-r",
 			usage="Revision to sync to. Defaults to head.")
@@ -57,12 +59,15 @@ public class CommandOptions {
 	private Long waitInitial = null;
 
 	// daemon mode
+	/* Classic daemon mode based on parent path is no longer available, see -e.
 	@Option(name="-d",
 			usage="Daemon mode, svn parent path. Unnamed arguments list the repository names to include, all if no unnamed args.")
 	private File parentPath = null;
+	*/
 	
 	@Option(name="-e",
-			usage="Equivalent URL, for daemon mode, the url that corresponds to the parent path, with trailing slash.")
+			usage="Parent/Equivalent URL, for daemon mode, the url that corresponds to the parent path, with trailing slash."
+					+ " Unnamed arguments list the repository names to include (discovery via svnpubsub or parentUrl could be implemented in the future).")
 	private String parentUrl = null;
 	
 	@Option(name="-x",
@@ -89,14 +94,6 @@ public class CommandOptions {
 		return operation;
 	}
 
-	public File getRepository() {
-		return repository;
-	}
-	
-	void setRepository(File repository) {
-		this.repository = repository;
-	}
-
 	public String getRevision() {
 		return revision;
 	}
@@ -121,9 +118,11 @@ public class CommandOptions {
 		this.waitInitial = waitInitial;
 	}
 	
+	/*
 	public File getParentPath() {
 		return parentPath;
 	}
+	 */
 
 	public String getParentUrl() {
 		return parentUrl;

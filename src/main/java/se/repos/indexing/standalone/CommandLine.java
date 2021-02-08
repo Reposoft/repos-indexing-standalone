@@ -3,7 +3,6 @@
  */
 package se.repos.indexing.standalone;
 
-import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.List;
@@ -29,8 +28,8 @@ import se.repos.indexing.solrj.SolrOptimize;
 import se.repos.indexing.standalone.CommandOptions.Operation;
 import se.repos.indexing.standalone.config.BackendModule;
 import se.repos.indexing.standalone.config.IndexingHandlersModuleXml;
-import se.repos.indexing.standalone.config.ParentModule;
 import se.repos.indexing.standalone.config.IndexingModule;
+import se.repos.indexing.standalone.config.ParentModule;
 import se.repos.indexing.standalone.config.SolrCoreProvider;
 import se.repos.indexing.standalone.config.SolrCoreProviderAssumeExisting;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
@@ -54,17 +53,18 @@ public class CommandLine {
 		CmdLineParser parser = new CmdLineParser(options);
 		try {
 			parser.parseArgument(args);
-			// support hook style execution
-			if (options.getParentPath() != null) {
-				if (options.getParentUrl() == null) {
-					throw new CmdLineException(parser, "Daemon mode requires parent URL", null);
-				}
-			}
-			if (options.getRepository() == null) {
+			
+			if (options.getParentUrl() != null) {
+				// daemon mode
 				if (options.getArguments().size() == 0) {
-					throw new CmdLineException(parser, "Repository not set and no unnamed arguments supplied either", null);
+					throw new CmdLineException(parser, "Daemon mode requires one or more repositories named as arguments.", null);
 				}
-				options.setRepository(new File(options.getArguments().get(0)));
+			} else {
+				// support hook style execution
+				// TODO: verify after http transition, need to also support -p with local path?
+				if (options.getArguments().size() != 1) {
+					throw new CmdLineException(parser, "Non-daemon mode requires a single named repository as argument.", null);
+				}
 			}
 		} catch (CmdLineException e) {
 			System.err.println(e.getMessage());
@@ -93,7 +93,7 @@ public class CommandLine {
 		
 		SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(options.getSolrUrl());
 		
-		if (options.getSVNPubSubUrl() != null && options.getParentPath() != null) {
+		if (options.getSVNPubSubUrl() != null && options.getParentUrl() != null) {
 			logger.info("SVNPubSub: {}", options.getSVNPubSubUrl());
 			try {
 				runDaemonPubSub(options, solrCoreProvider);
@@ -105,7 +105,7 @@ public class CommandLine {
 			System.exit(0);
 		}
 		
-		if (options.getParentPath() != null) {
+		if (options.getParentUrl() != null) {
 			try {
 				runDaemon(options, solrCoreProvider);
 			} catch (Throwable e) {
@@ -116,17 +116,17 @@ public class CommandLine {
 			return;
 		}
 		
-		File repo = options.getRepository();
+
 		String url = options.getRepositoryUrl();
 		if (url == null) {
-			url = guessRepositoryUrl(repo);
+			url = guessRepositoryUrl(options.getArguments().get(0));
 			if (options.getOperation() == Operation.clear) {
 				logger.info("Guessed repository url {}. Should be insignificant at clear.", url);
 			} else {
 				logger.warn("Guessed repository url {}. Set using -u.", url);
 			}
 		}
-		CmsRepositorySvn repository = new CmsRepositorySvn(url, repo);
+		CmsRepositorySvn repository = new CmsRepositorySvn(url);
 		
 		Module parentModule = new ParentModule(solrCoreProvider);
 		Injector parent = Guice.createInjector(parentModule);
@@ -169,14 +169,14 @@ public class CommandLine {
 	}
 
 	private static void runDaemon(CommandOptions options, SolrCoreProvider solrCoreProvider) {
-		IndexingDaemon d = new IndexingDaemon(options.getParentPath(), options.getParentUrl(), options.getArguments(),
+		IndexingDaemon d = new IndexingDaemon(options.getParentUrl(), options.getArguments(),
 				solrCoreProvider);
 		d.setWait(options.getWait() != null ? options.getWait() * 1000 : 0);
 		d.run();
 	}
 	
 	private static void runDaemonPubSub(CommandOptions options, SolrCoreProvider solrCoreProvider) {
-		IndexingDaemon d = new IndexingDaemonPubSub(options.getParentPath(), options.getParentUrl(), options.getArguments(),
+		IndexingDaemon d = new IndexingDaemonPubSub(options.getParentUrl(), options.getArguments(),
 				solrCoreProvider, options.getSVNPubSubUrl());
 		d.setWait(options.getWait() != null ? options.getWait() * 1000 : 0);
 		d.run();
@@ -192,8 +192,8 @@ public class CommandLine {
 		}
 	}
 
-	protected static String guessRepositoryUrl(File repo) {
-		return "http://localhost/svn/" + repo.getName();
+	protected static String guessRepositoryUrl(String repoName) {
+		return "http://localhost/svn/" + repoName;
 	}
 	
 	private static void setupSvnkit() {
