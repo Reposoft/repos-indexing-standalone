@@ -132,12 +132,12 @@
 		<dependency>
 			<groupId>org.sonatype.sisu</groupId>
 			<artifactId>sisu-guice</artifactId>
-			<version>3.2.3</version>		
+			<version>4.2.0</version>		
 		</dependency>
 		<dependency>
 			<groupId>org.sonatype.sisu.inject</groupId>
 			<artifactId>guice-multibindings</artifactId>
-			<version>3.2.3</version>		
+			<version>4.2.0</version>		
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
