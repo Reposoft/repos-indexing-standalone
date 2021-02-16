@@ -63,7 +63,7 @@ public class CommandLine {
 				// support hook style execution
 				// TODO: verify after http transition, need to also support -p with local path?
 				if (options.getArguments().size() != 1) {
-					throw new CmdLineException(parser, "Non-daemon mode requires a single named repository as argument.", null);
+					throw new CmdLineException(parser, "Non-daemon mode requires a single named repository as argument (corename for optimize).", null);
 				}
 			}
 		} catch (CmdLineException e) {
@@ -139,7 +139,11 @@ public class CommandLine {
 			Thread.sleep(options.getWaitInitial() * 1000);
 		}
 		
+		// Clear and resync typically requires the URL via -u
 		if (options.getOperation() == Operation.clear || options.getOperation() == Operation.resync) {
+			if (options.getRepositoryUrl() == null) {
+				logger.warn("Clear typically requires the repository URL (-u).");
+			}
 			repositoryContext.getInstance(IndexAdmin.class).clear();
 		}
 		if (options.getOperation() == Operation.clear) {
