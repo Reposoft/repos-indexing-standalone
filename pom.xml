@@ -117,7 +117,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-svnkit</artifactId>
-			<version>1.4.0-SNAPSHOT</version>
+			<version>3.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
@@ -128,7 +128,9 @@
 			<groupId>args4j</groupId>
 			<artifactId>args4j</artifactId>
 			<version>2.0.29</version>
-		</dependency>			
+		</dependency>
+		<!-- Would like to upgrade to core Guice no_aop but seems incompatible with guava version used by SolR 6.6.6. -->
+		<!-- https://github.com/google/guice/issues/1133#issuecomment-704281989 -->
 		<dependency>
 			<groupId>org.sonatype.sisu</groupId>
 			<artifactId>sisu-guice</artifactId>

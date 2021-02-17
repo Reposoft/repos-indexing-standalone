@@ -3,8 +3,6 @@
  */
 package se.repos.indexing.standalone;
 
-import java.io.File;
-import java.nio.channels.NonWritableChannelException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -46,31 +44,24 @@ public class IndexingDaemon implements Runnable {
 	
 	protected Injector global;
 	
-	protected Map<File, CmsRepository> known = new HashMap<>();
+	protected Map<String, CmsRepository> known = new HashMap<>(); // repo name -> CmsRepository
 	protected SortedMap<CmsRepository, ReposIndexing> loaded = new TreeMap<>(new CmsRepositoryComparator());
 	protected Map<CmsRepository, RepoRevision> previous = new HashMap<>();
 	protected Map<CmsRepository, CmsRepositoryLookup> repositoryLookups = new HashMap<>();
 	protected Map<CmsRepository, CmsContentsReader> contentsReaders = new HashMap<>();
 
-	protected File parentPath;
-
 	protected String parentUrl;
 	
 	/**
 	 * 
-	 * @param parentPath SVN parent path
 	 * @param parentUrl Equivalent URL including the trailing slash
 	 * @param include Repository names to be included when indexing
 	 */
-	public IndexingDaemon(File parentPath, String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider) {
+	public IndexingDaemon(String parentUrl, List<String> include, SolrCoreProvider solrCoreProvider) {
 		
-		if (!parentPath.exists()) {
-			throw new IllegalArgumentException("Not found: " + parentPath);
-		}
 		if (!parentUrl.endsWith("/")) {
 			throw new IllegalArgumentException("Parent path URL must end with slash");
 		}
-		this.parentPath = parentPath;
 		this.parentUrl = parentUrl;
 		
 		global = getGlobal(solrCoreProvider);
@@ -79,9 +70,8 @@ public class IndexingDaemon implements Runnable {
 			throw new IllegalArgumentException("At least one or more repositories have to be supplied");
 		} else {
 			for (String name : include) {
-				File path = new File(parentPath, name);
 				String url = parentUrl + name;
-				addRepository(path, url);
+				addRepository(name, url);
 			}
 		}
 	}
@@ -103,11 +93,11 @@ public class IndexingDaemon implements Runnable {
 	}
 	
 
-	protected void addRepository(File path, String url) {
-		if (known.containsKey(path)) {
-			throw new IllegalArgumentException("Repository " + path + " already added");
+	protected void addRepository(String name, String url) {
+		if (known.containsKey(name)) {
+			throw new IllegalArgumentException("Repository " + name + " already added");
 		}
-		CmsRepositorySvn repository = new CmsRepositorySvn(url, path);
+		CmsRepositorySvn repository = new CmsRepositorySvn(url);
 		Injector context = getSvn(global, repository);
 		ReposIndexing indexing = context.getInstance(ReposIndexing.class);
 		loaded.put(repository, indexing);
@@ -115,26 +105,30 @@ public class IndexingDaemon implements Runnable {
 		repositoryLookups.put(repository, lookup);
 		CmsContentsReader contents = context.getInstance(CmsContentsReader.class);
 		contentsReaders.put(repository, contents);
-		logger.info("Added repository {} for admin path {}", repository.getUrl(), repository.getAdminPath());
-		known.put(path, repository);
+		logger.info("Added repository {}", repository.getUrl());
+		known.put(name, repository);
 	}
 	
 	protected void removeRepository(CmsRepository repo) {
 		loaded.remove(repo);
 		previous.remove(repo);
-		for (File r : known.keySet()) {
-			if (repo.equals(known.get(r))) {
-				known.remove(r);
+		for (String name : known.keySet()) {
+			if (repo.equals(known.get(name))) {
+				known.remove(name);
 			}
 		}
 		logger.info("Removed repository {}", repo.getUrl());
 	}
 	
 	protected boolean isStillExisting(CmsRepository repo) {
+		// TODO: Consider if there is other method to determine. 
+		// Do we ever want to disable indexing of repo now when using a configured set of repositories. 
+		/*
 		if (repo instanceof CmsRepositorySvn) {
 			return ((CmsRepositorySvn) repo).getAdminPath().exists();
 		}
 		logger.info("Can not determine if repository {} still exists, unknown type {}", repo, repo.getClass().getName());
+		*/
 		return true;
 	}
 
@@ -205,14 +199,6 @@ public class IndexingDaemon implements Runnable {
 		RepoRevision head;
 		try {
 			head = lookup.getYoungest(repo);
-		} catch (NonWritableChannelException e) {
-			// Thrown by SVNKit 1.8.14 when called directly after post-commit hook.
-			logger.error("SVNKit failed svnlook youngest.");
-			logger.debug("SVNKit failed svnlook youngest: ", e);
-			
-			// Awaiting resolution in SVNKit or migration to http instead of svnlook.
-			throw e;
-			
 		} catch (RuntimeException e) {
 			if (isStillExisting(repo)) {
 				logger.error("Failed to lookup youngest revision: ", e);
