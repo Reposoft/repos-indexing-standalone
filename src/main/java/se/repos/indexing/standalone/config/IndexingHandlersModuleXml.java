@@ -60,6 +60,9 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		sourceBinder.addBinding("reuse-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl")));
 		sourceBinder.addBinding("itemid-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl")));
 		
+		sourceBinder.addBinding("xml-indexing-repositem.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl")));
+		sourceBinder.addBinding("xml-indexing-reposxml.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl")));
+		
 		// ticket:821 The safe choice is XmlIndexWriterSolrj.class while XmlIndexWriterSolrjBackground.class provides 25-30% better performance.
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class);
 		
