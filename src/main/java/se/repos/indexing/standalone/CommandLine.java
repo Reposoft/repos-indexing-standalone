@@ -98,10 +98,7 @@ public class CommandLine {
 			try {
 				runDaemonPubSub(options, solrCoreProvider);
 			} catch (Throwable e) {
-				// TODO: Remove all except a working one...
-				logger.error("Terminating indexing service.", e); // Provides no stack trace.
 				logger.error("Terminating indexing service: {} ({})", e.getMessage(), e.toString(), e);
-				logger.error("Terminating indexing service: {} ({})", e.getMessage(), e.getClass(), e);
 				System.exit(1);
 			}
 			logger.info("Terminating indexing service.");
@@ -112,10 +109,7 @@ public class CommandLine {
 			try {
 				runDaemon(options, solrCoreProvider);
 			} catch (Throwable e) {
-				// TODO: Remove all except a working one...
-				logger.error("Terminating indexing service.", e); // Provides no stack trace.
 				logger.error("Terminating indexing service: {} ({})", e.getMessage(), e.toString(), e);
-				logger.error("Terminating indexing service: {} ({})", e.getMessage(), e.getClass(), e);
 				System.exit(1);
 			}
 			logger.info("Terminating indexing service.");
