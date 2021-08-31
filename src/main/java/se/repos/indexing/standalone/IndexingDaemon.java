@@ -31,6 +31,7 @@ import se.repos.indexing.standalone.config.SolrCoreProvider;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.info.CmsAuthenticationException;
 import se.simonsoft.cms.item.info.CmsConnectionException;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 import se.simonsoft.cms.item.inspection.CmsContentsReader;
@@ -257,7 +258,8 @@ public class IndexingDaemon implements Runnable {
 				CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
 				logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
 				return revProps;
-			} catch (CmsConnectionException e) {
+			} catch (CmsConnectionException|CmsAuthenticationException e) {
+				// Can get CmsAuthenticationException while apache starting up.
 				retries++;
 				logger.warn("Repository connection failed (backoff {}ms) to {}: {}", retryPause, repo, e.getMessage());
 				
