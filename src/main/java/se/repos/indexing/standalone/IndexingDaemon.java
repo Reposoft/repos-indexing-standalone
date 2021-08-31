@@ -13,6 +13,7 @@ import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.MessageFormatter;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -30,6 +31,7 @@ import se.repos.indexing.standalone.config.SolrCoreProvider;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
+import se.simonsoft.cms.item.info.CmsConnectionException;
 import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 import se.simonsoft.cms.item.inspection.CmsContentsReader;
 import se.simonsoft.cms.item.properties.CmsItemProperties;
@@ -224,20 +226,55 @@ public class IndexingDaemon implements Runnable {
 	
 	protected boolean indexingEnabled(CmsRepository repo) {
 		
-		CmsContentsReader contentsReader = contentsReaders.get(repo);
-		if (contentsReader != null) {
-			CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
-			logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
+		CmsItemProperties revProps = getRepoConfig(repo);
+		if (revProps != null) {
 			if (revProps != null && revProps.getString("indexing:mode") != null && "none".equals(revProps.getString("indexing:mode").trim())) {
 				logger.warn("Indexing disabled for {}, indexing:mode was set to none.", repo);
 				return false;
 			}
+			return true;
 		} else {
-			logger.warn("Could not read properties for {}, no contents reader was loaded.", repo);
+			String msg = MessageFormatter.format("Could not read revision properties for {}", repo).getMessage();
+			logger.error(msg);
+			throw new IllegalStateException(msg);
 		}
-		// Falling back to true even when unable to read revprops.
-		return true;
 	}
+	
+	
+	private CmsItemProperties getRepoConfig(CmsRepository repo) {
+		
+		CmsContentsReader contentsReader = contentsReaders.get(repo);
+		if (contentsReader == null) {
+			String msg = MessageFormatter.format("Could not read properties for {}, no contents reader was loaded.", repo).getMessage();
+			logger.error(msg);
+			throw new IllegalStateException(msg);
+		}
+		
+		int retries = 0;
+		Long retryPause = 2000L;
+		while (retries < 3) {
+			try {
+				CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
+				logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
+				return revProps;
+			} catch (CmsConnectionException e) {
+				retries++;
+				logger.warn("Repository connection failed (backoff {}ms) to {}: {}", retryPause, repo, e.getMessage());
+				
+				try {
+					Thread.sleep(retryPause);
+				} catch (InterruptedException ie) {
+					throw new RuntimeException("Retry sleep interrupted: " +  ie.getMessage());
+				}
+				// Backoff
+				retryPause = 3*retryPause;
+			}
+		}
+		String msg = MessageFormatter.format("Could not read properties for {}, connection failed.", repo).getMessage();
+		logger.error(msg);
+		throw new IllegalStateException(msg);
+	}
+	
 
 	static class CmsRepositoryComparator implements java.util.Comparator<CmsRepository> {
 		@Override
