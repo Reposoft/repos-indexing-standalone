@@ -262,6 +262,8 @@ public class IndexingDaemon implements Runnable {
 				// Can get CmsAuthenticationException while apache starting up.
 				retries++;
 				logger.warn("Repository connection failed (backoff {}ms) to {}: {}", retryPause, repo, e.getMessage());
+				// TODO: Remove
+				logger.warn("Repository connection failed: {}", e.getMessage(), e);
 				
 				try {
 					Thread.sleep(retryPause);
