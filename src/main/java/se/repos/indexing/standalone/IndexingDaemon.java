@@ -253,7 +253,7 @@ public class IndexingDaemon implements Runnable {
 		
 		int retries = 0;
 		Long retryPause = 2000L;
-		while (retries < 3) {
+		while (retries < 4) {
 			try {
 				CmsItemProperties revProps = contentsReader.getRevisionProperties(new RepoRevision(0, null));
 				logger.debug("{} revision props r0: {}", repo.getName(), (revProps != null ? revProps.getKeySet() : "null"));
