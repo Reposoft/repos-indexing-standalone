@@ -19,9 +19,6 @@ import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
 import se.simonsoft.cms.indexing.xml.XmlIndexWriter;
-import se.simonsoft.cms.indexing.xml.custom.IndexFieldExtractionCustomXsl;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSource;
-import se.simonsoft.cms.indexing.xml.custom.XmlMatchingFieldExtractionSourceDefault;
 import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
@@ -84,10 +81,6 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		// XML field extraction
 		Multibinder<XmlIndexFieldExtraction> xmlExtraction = Multibinder.newSetBinder(binder(), XmlIndexFieldExtraction.class);
 		IndexingHandlersXml.configureXmlFieldExtraction(xmlExtraction);
-		
-		// Used in field extraction. We don't have a strategy yet for placement of the custom xsl, read from jar
-		bind(XmlMatchingFieldExtractionSource.class).to(XmlMatchingFieldExtractionSourceDefault.class);
-		bind(IndexFieldExtractionCustomXsl.class).asEagerSingleton(); // This line was not present before 0.16, but was in the testconfig.
 		
 		// hook into repos-indexing actions
 		bind(IndexAdminXml.class).asEagerSingleton();
