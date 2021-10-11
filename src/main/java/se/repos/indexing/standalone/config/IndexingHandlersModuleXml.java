@@ -23,10 +23,16 @@ import se.simonsoft.cms.indexing.xml.solr.XmlIndexWriterSolrjBackground;
 import se.simonsoft.cms.xmlsource.SaxonConfiguration;
 import se.simonsoft.cms.xmlsource.handler.XmlSourceReader;
 import se.simonsoft.cms.xmlsource.handler.s9api.XmlSourceReaderS9api;
+import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSource;
+import se.simonsoft.cms.xmlsource.transform.TransformStylesheetSourceConfig;
 import se.simonsoft.cms.xmlsource.transform.function.GetChecksum;
 import se.simonsoft.cms.xmlsource.transform.function.GetLogicalId;
 import se.simonsoft.cms.xmlsource.transform.function.GetPegRev;
 import se.simonsoft.cms.xmlsource.transform.function.WithPegRev;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -53,13 +59,22 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		transformerFunctions.addBinding().to(GetLogicalId.class);
 		bind(XmlSourceReader.class).to(XmlSourceReaderS9api.class);
 		
-		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
-		sourceBinder.addBinding("identity.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/identity.xsl")));
-		sourceBinder.addBinding("reuse-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl")));
-		sourceBinder.addBinding("itemid-normalize.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl")));
+		Map<String, String> stylesheets = new HashMap<>();
+		stylesheets.put("identity.xsl", "se/simonsoft/cms/xmlsource/transform/identity.xsl");
+		stylesheets.put("reuse-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/reuse-normalize.xsl");
+		stylesheets.put("itemid-normalize.xsl", "se/simonsoft/cms/xmlsource/transform/itemid-normalize.xsl");
+
+		stylesheets.put("xml-indexing-repositem.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl");
+		stylesheets.put("xml-indexing-reposxml.xsl", "se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl");
 		
-		sourceBinder.addBinding("xml-indexing-repositem.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-repositem.xsl")));
-		sourceBinder.addBinding("xml-indexing-reposxml.xsl").toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream("se/simonsoft/cms/indexing/xml/source/xml-indexing-reposxml.xsl")));
+		// cms-xmlsource 0.21.x
+		bind(TransformStylesheetSource.class).toInstance(new TransformStylesheetSourceConfig(stylesheets));
+		
+		// Legacy binding of stylesheets, cms-xmlsource 0.20.x
+		MapBinder<String, Source> sourceBinder = MapBinder.newMapBinder(binder(), String.class, Source.class);
+		for (Entry<String, String> s: stylesheets.entrySet()) {
+			sourceBinder.addBinding(s.getKey()).toInstance(new StreamSource(this.getClass().getClassLoader().getResourceAsStream(s.getValue())));
+		}
 		
 		// ticket:821 The safe choice is XmlIndexWriterSolrj.class while XmlIndexWriterSolrjBackground.class provides 25-30% better performance.
 		bind(XmlIndexWriter.class).to(XmlIndexWriterSolrjBackground.class);
