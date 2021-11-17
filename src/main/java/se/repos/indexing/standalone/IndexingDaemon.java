@@ -115,11 +115,7 @@ public class IndexingDaemon implements Runnable {
 	protected void removeRepository(CmsRepository repo) {
 		loaded.remove(repo);
 		previous.remove(repo);
-		for (String name : known.keySet()) {
-			if (repo.equals(known.get(name))) {
-				known.remove(name);
-			}
-		}
+		known.remove(repo.getName());
 		logger.info("Removed repository {}", repo.getUrl());
 	}
 	
