@@ -242,8 +242,14 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 				logger.error("Sync failed for repository '{}'", repo.getName(), e);
 				throw e;
 			} catch (Error error) {
-				logger.error("Sync failed with Error for repository '{}'", repo.getName(), error);
-				throw error;
+				// Catch errors, like OutOfMemoryError and classloader issues.
+				// Ensure that the JVM terminates instead of starting the next Callable in queue.
+				try {
+					logger.error("Sync failed with Error for repository '{}'", repo.getName(), error);
+				} finally {
+					System.exit(-10);
+				}
+				//throw error;
 			}
 			return repo;
 		}
