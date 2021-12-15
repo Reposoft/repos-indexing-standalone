@@ -79,7 +79,6 @@ public class CommandLine {
 		
 		logger.info("JVM version: {} {}", System.getProperty("java.vm.name"), System.getProperty("java.vm.version"));
 		logger.info("JVM default charset: {}", Charset.defaultCharset());
-		logger.info("Log4j version: {}", org.apache.log4j.Layout.class.getPackage().getImplementationVersion());
 		if (CmsComponents.logAllVersions() == 1) {
 			// for bundled jar
 			CmsComponents.logPomProperties("META-INF/maven/se.repos/repos-indexing/pom.properties");
