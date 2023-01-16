@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.21.2-SNAPSHOT</version>
+			<version>0.21.2</version>
 			<exclusions>
 			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
             <exclusion>
@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>se.repos</groupId>
 			<artifactId>repos-indexing-fulltext</artifactId>
-			<version>0.21.0</version>
+			<version>0.21.1</version>
 			<exclusions>
 				<!-- Tika 1.4 depends on Rome which depends on (jdom.)jdom 1.0, but Saxon-HE 9.4 used in cms-indexing-xml depends on (org.jdom.)jdom 1.1 -->
 				<exclusion>
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
-			<version>0.4.1-SNAPSHOT</version>
+			<version>0.4.1</version>
  			<exclusions>
 				<exclusion>
 					<groupId>org.apache.cxf</groupId>
