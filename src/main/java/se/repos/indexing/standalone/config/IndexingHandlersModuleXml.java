@@ -16,6 +16,7 @@ import se.simonsoft.cms.indexing.graphics.HandlerGraphicsResolution;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefExcel;
 import se.simonsoft.cms.indexing.keydef.HandlerKeydefXliff;
 import se.simonsoft.cms.indexing.keydef.HandlerTransformTika;
+import se.simonsoft.cms.indexing.properties.HandlerSubjectScheme;
 import se.simonsoft.cms.indexing.xml.IndexAdminXml;
 import se.simonsoft.cms.indexing.xml.IndexingHandlersXml;
 import se.simonsoft.cms.indexing.xml.XmlIndexFieldExtraction;
@@ -93,6 +94,7 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 		handlers.addBinding().to(HandlerClassification.class);
 		handlers.addBinding().to(HandlerCategory.class);
 		handlers.addBinding().to(HandlerGraphicsResolution.class);
+		handlers.addBinding().to(HandlerSubjectScheme.class);
 		IndexingHandlersXml.configureLast(handlers);
 		
 		// XML field extraction
