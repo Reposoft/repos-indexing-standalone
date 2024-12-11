@@ -52,6 +52,13 @@
 	</properties>
 
 	<dependencies>
+		
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-lambda-java-runtime-interface-client</artifactId>
+			<version>2.6.0</version>
+		</dependency>
+	
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>

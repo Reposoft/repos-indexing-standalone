@@ -1,0 +1,35 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Example basic 
+
+Parameters:
+  Runtime:
+    Type: String
+    Default: java11
+  Timeout:
+    Type: Number
+    Default: 40
+  MemorySize:
+    Type: Number
+    Default: 2000
+
+Globals:
+  Function:
+    Runtime: !Ref Runtime
+    Timeout: !Ref Timeout
+    MemorySize: !Ref MemorySize
+
+Resources:
+  HelloLambdaFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: se.repos.indexing.standalone.IndexingLambda
+      CodeUri: target/repos-indexing-standalone-jar-with-dependencies.jar
+      FunctionName: HelloLambdaFunction
+      Events:
+        HelloEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: get
