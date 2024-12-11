@@ -141,12 +141,32 @@ public class IndexingDaemonPubSub extends IndexingDaemon {
 		for (CmsRepository repo : removeRepos) {
 			removeRepository(repo);
 		}
-
 		logger.info("Indexing enabled for repositories: {}", loaded.keySet());
+
+		// Must always sync at least once when starting up.
+		logger.debug("Performing startup sync.");
+		for (CmsRepository repo : loaded.keySet()) {
+			CmsRepositoryLookup lookup = repositoryLookups.get(repo);
+			syncRepo(lookup, repo);
+		}
 		
+		while(!executorFutures.isEmpty()) {
+			inspectFutures();
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				logger.debug("Interrupted during statup sync");
+				break; // abort
+			}
+			logger.trace("Waiting for statup sync...");
+		}
+		
+		// Start the worker after reindex is done.
+		logger.info("Starting PubSub event source");
 		EventSource eventSource = startEventSource();
 		while (true) {
-			// Must always sync at least once when starting up.
+			// Has traditionally been placed here before duplication above loop / event source startup.
+			// Makes sense to catch up all repositories if some repo has taken a while during startup sync.
 			logger.debug("Performing periodic sync.");
 			for (CmsRepository repo : loaded.keySet()) {
 				CmsRepositoryLookup lookup = repositoryLookups.get(repo);
