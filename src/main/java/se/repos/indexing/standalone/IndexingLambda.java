@@ -33,18 +33,19 @@ import org.slf4j.LoggerFactory;
 
 public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
 
-	private static Boolean inited = init();
-
 	private static final Logger logger = LoggerFactory.getLogger(IndexingLambda.class);
 			
 	// Current cms-indexing-lambda has env: CMS_CLOUDID, CMS_SOLR_URL 
-	// Likely add CMS_SVN_URL 
+	// Add CMS_SVN_URL pointing to parent (no port) 
+	// Add CMS_REPO - possibly Multi-value in the future unless we make multiple lambdas / SQS
 	
-	private static String solrUrl = "http://localhost:8983/solr/";
+	private static String cloudid = System.getenv().getOrDefault("CMS_CLOUDID", "demo1"); // Default only for local testing
+	private static String repoName = System.getenv().getOrDefault("CMS_REPO", cloudid); // Defaults to cloudid
+	private static String solrUrl = System.getenv().getOrDefault("CMS_SOLR_URL", "http://localhost:8983/solr/");;
 	// CmsRepository may not specify a custom port (provider uses 8091)
-	private static String svnUrl = "http://localhost/svn/demo1"; 
+	private static String svnParentUrl = System.getenv().getOrDefault("CMS_SVN_URL", "http://localhost/svn/");
 	
-	private static CmsRepositorySvn repo = new CmsRepositorySvn(svnUrl);
+	private static CmsRepositorySvn repo = new CmsRepositorySvn(svnParentUrl + repoName);
 	private static SolrCoreProvider solrCoreProvider = new SolrCoreProviderAssumeExisting(solrUrl);
 	private static Injector global = getGlobal(solrCoreProvider);
 	private static Injector context = getSvn(global, repo);
@@ -142,9 +143,4 @@ public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
 	}
 	
 	
-	private static Boolean init() {
-		System.out.println("Indexing init... out");
-		System.err.println("Indexing init... err");
-		return Boolean.TRUE;
-	}
 }
