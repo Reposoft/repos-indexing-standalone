@@ -23,9 +23,10 @@ phases:
       - export IMAGE_TAG=$(./.buildtag.sh)
       - |
         echo "The Docker image will be tagged $IMAGE_TAG"
-        if [ "IMAGE_TAG" = "" ]; then
+        if [ "$IMAGE_TAG" = "" ]; then
           echo Failed to determine the image tag.
-          exit 1
+          #exit 1
+          IMAGE_TAG="$CODEBUILD_SOURCE_VERSION"
         fi
       - echo The Docker images will be tagged $IMAGE_TAG...
       - echo Logging in to Amazon ECR...
@@ -34,7 +35,7 @@ phases:
       - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_TOKEN
   build:
     commands:
-      - mvn package
+      - mvn package --no-transfer-progress
       - echo Building Docker image $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX...
       - docker build -f Dockerfile.lambda -t $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX .
       - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX
