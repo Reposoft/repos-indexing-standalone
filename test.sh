@@ -1,7 +1,7 @@
 
 # Finally successful testing with sam cli
 mvn package
-docker build -t repos-indexing:1 .
+docker build -f Dockerfile.lambda -t repos-indexing:1 .
 
 export DOCKER_HOST=unix:///Users/takesson/.docker/run/docker.sock
 sam local start-lambda --debug
