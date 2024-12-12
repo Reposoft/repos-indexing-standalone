@@ -1,0 +1,52 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_TAG_DEV: dev
+    IMAGE_TAG_LATEST: latest
+    IMAGE_TAG_LAMBDA_SUFFIX: lambda
+    IMAGE_REPO_NAME: repos-indexing
+  parameter-store:
+    DOCKERHUB_USER: CodeBuild-DockerHubUser
+    DOCKERHUB_TOKEN: CodeBuild-DockerHubToken
+  exported-variables:
+    - IMAGE_TAG
+    - AWS_ACCOUNT_ID
+    - DEV_LAMBDA_FUNCTION_NAME
+phases:
+  install:
+    commands:
+      - echo "Build triggered by $CODEBUILD_WEBHOOK_TRIGGER..."
+      - echo && env | grep -i CODEBUILD_
+  pre_build:
+    commands:
+      - export IMAGE_TAG=$(./.buildtag.sh)
+      - |
+        echo "The Docker image will be tagged $IMAGE_TAG"
+        if [ "IMAGE_TAG" = "" ]; then
+          echo Failed to determine the image tag.
+          exit 1
+        fi
+      - echo The Docker images will be tagged $IMAGE_TAG...
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo Logging in to Docker Hub...
+      - docker login -u $DOCKERHUB_USER -p $DOCKERHUB_TOKEN
+  build:
+    commands:
+      - mvn package
+      - echo Building Docker image $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX...
+      - docker build -f Dockerfile.lambda -t $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX .
+      - docker tag $IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX
+  post_build:
+    commands:
+      # Disabled the Fargate image build which we can later adapt to be used as a development testing tool.
+      # - echo Pushing the Fargate Docker image...
+      # - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG
+      - echo Pushing the Lambda Docker image...
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX
+      - |
+        if [ -n "$DEV_LAMBDA_FUNCTION_NAME" ]; then
+          echo Update the development Lambda...
+          aws lambda update-function-code --function-name $DEV_LAMBDA_FUNCTION_NAME --image-uri=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME:$IMAGE_TAG-$IMAGE_TAG_LAMBDA_SUFFIX;
+        fi
