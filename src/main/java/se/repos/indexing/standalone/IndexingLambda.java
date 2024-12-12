@@ -3,6 +3,8 @@ package se.repos.indexing.standalone;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
+import com.amazonaws.services.lambda.runtime.events.SQSEvent;
+import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -25,13 +27,12 @@ import se.simonsoft.cms.item.info.CmsRepositoryLookup;
 import se.simonsoft.cms.item.inspection.CmsContentsReader;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
+public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 
 	private static final Logger logger = LoggerFactory.getLogger(IndexingLambda.class);
 			
@@ -68,7 +69,7 @@ public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
 	/*
 	 * Takes a list of Integers and returns its sum.
 	 */
-	public Integer handleRequest(List<Integer> event, Context context) {
+	public Object handleRequest(SQSEvent event, Context context) {
 		System.out.println("Indexing... out");
 		System.err.println("Indexing... err");
 
@@ -82,6 +83,10 @@ public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
 		LambdaLogger logger = context.getLogger();
 		logger.log("EVENT TYPE: " + event.getClass().toString());
 		*/
+		
+		if (event.getRecords().size() != 1) {
+    		logger.info("Index 'workflow' event records: {}", event.getRecords().size());
+    	}
 		
 		logger.info("Starting sync for repository '{}'", repo.getName());
 		
@@ -119,7 +124,7 @@ public class IndexingLambda implements RequestHandler<List<Integer>, Integer> {
 		}
 
 		
-		return event.stream().mapToInt(Integer::intValue).sum();
+		return new String("Done");
 	}
 	
 	/**
