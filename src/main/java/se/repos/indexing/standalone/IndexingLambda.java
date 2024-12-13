@@ -20,6 +20,7 @@ import se.repos.indexing.standalone.config.IndexingModule;
 import se.repos.indexing.standalone.config.ParentModule;
 import se.repos.indexing.standalone.config.SolrCoreProvider;
 import se.repos.indexing.standalone.config.SolrCoreProviderAssumeExisting;
+import se.repos.indexing.twophases.RepositoryIndexStatus;
 import se.simonsoft.cms.backend.svnkit.CmsRepositorySvn;
 import se.simonsoft.cms.item.CmsRepository;
 import se.simonsoft.cms.item.RepoRevision;
@@ -69,7 +70,7 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 	/*
 	 * Takes a list of Integers and returns its sum.
 	 */
-	public Object handleRequest(SQSEvent event, Context context) {
+	public Object handleRequest(SQSEvent event, Context requestContext) {
 		System.out.println("Indexing... out");
 		System.err.println("Indexing... err");
 
@@ -77,6 +78,9 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 		System.out.println("Indexing... " + indexing);
 		System.out.println("Indexing... " + lookup);
 		System.out.println("Indexing... " + contents);
+		
+		RepositoryIndexStatus repositoryStatus = context.getInstance(RepositoryIndexStatus.class);
+		System.out.println("Indexing... " + repositoryStatus);
 
 		// TODO: https://stackoverflow.com/questions/46080448/logging-in-aws-lambda-with-slf4j
 		/*
@@ -91,6 +95,10 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 		logger.info("Starting sync for repository '{}'", repo.getName());
 		
 		System.out.println("Starting sync for repository: " + repo.getName());
+		
+		System.out.println("Solr Ping...");
+		repositoryStatus.indexPing();
+		System.out.println("Solr Pinged");
 		try {
 			runOnce(lookup, repo);
 
