@@ -56,7 +56,12 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 	private static CmsContentsReader contents = context.getInstance(CmsContentsReader.class);
 	
 	private static Injector getGlobal(SolrCoreProvider solrCoreProvider) {
-		return Guice.createInjector(new ParentModule(solrCoreProvider));
+		Injector global = Guice.createInjector(new ParentModule(solrCoreProvider));
+		IndexingSchedule schedule = global.getInstance(IndexingSchedule.class);
+		System.out.println("IndexingSchedule start...");
+		schedule.start();
+		System.out.println("IndexingSchedule Started");
+		return global;
 	}
 	
 	private static  Injector getSvn(Injector global, CmsRepositorySvn repository) {
