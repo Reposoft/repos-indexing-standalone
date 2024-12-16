@@ -1,10 +1,8 @@
 package se.repos.indexing.standalone;
 
 import com.amazonaws.services.lambda.runtime.Context;
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.SQSEvent;
-import com.amazonaws.services.lambda.runtime.events.SQSEvent.SQSMessage;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Key;
@@ -96,7 +94,8 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 		if (event.getRecords().size() != 1) {
     		logger.info("Index 'workflow' event records: {}", event.getRecords().size());
     	}
-		
+		// {"type": "svn", "format": 1, "id": 210, "changed": {"repos.txt": {"flags": "A  "}}, "repository": "c9488318-5143-11df-a1b0-85e3586e0484", "repositoryname": "demo1", "committer": "testuser", "log": "", "date": "2024-12-16 14:57:51 +0000 (Mon, 16 Dec 2024)"}
+
 		logger.info("Starting sync for repository '{}'", repo.getName());
 		
 		System.out.println("Starting sync for repository: " + repo.getName());
@@ -136,8 +135,9 @@ public class IndexingLambda implements RequestHandler<SQSEvent, Object> {
 			//throw error;
 		}
 
-		
-		return new String("Done");
+		IndexingLambdaOutputObject out = new IndexingLambdaOutputObject();
+        out.setResult("ok");
+        return out;
 	}
 	
 	/**
