@@ -14,6 +14,10 @@
 		</Console>
 	</Appenders>
 	<Loggers>
+		<!-- Apache http client logging. -->
+		<Logger name="org.apache.http" level="warn" additivity="false">
+				<Appender-ref ref="Console" />
+		</Logger>
 		<Root level="${level}">
 			<AppenderRef ref="Console" />
 		</Root>
