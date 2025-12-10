@@ -55,7 +55,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-xml</artifactId>
-			<version>0.22.0-SNAPSHOT</version>
+			<version>0.22.0</version>
 			<exclusions>
 			<!-- Causes java.lang.NoSuchMethodError: javax.ws.rs.core.Response$Status$Family.familyOf(I)Ljavax/ws/rs/core/Response$Status$Family; -->
             <exclusion>
@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-xmlsource</artifactId>
-			<version>0.22-SNAPSHOT</version>
+			<version>0.22.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jdom2</artifactId>
@@ -101,7 +101,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-indexing-keydef</artifactId>
-			<version>0.5.0-SNAPSHOT</version>
+			<version>0.5.0</version>
  			<exclusions>
 				<exclusion>
 					<groupId>org.apache.cxf</groupId>
@@ -113,7 +113,7 @@
 		<dependency>
 			<groupId>se.simonsoft</groupId>
 			<artifactId>cms-backend-svnkit</artifactId>
-			<version>3.2.0-SNAPSHOT</version>
+			<version>3.2.0</version>
 		</dependency>
 		<dependency>
 			<groupId>se.simonsoft</groupId>
