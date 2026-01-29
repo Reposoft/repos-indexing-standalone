@@ -51,6 +51,8 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 	
 	public static final String CONFIG_XML_SUPPRESSRIDBEFORE = "se.simonsoft.cms.indexing.xml.suppressRidBefore";
 	
+	public static final String CONFIG_XML_TSOURCEALLOWED = "se.simonsoft.cms.indexing.xml.tsourceAllowed";
+	
 	@Override
 	protected void configure() {
 		bind(Processor.class).toProvider(SaxonConfiguration.class);
@@ -117,6 +119,12 @@ public class IndexingHandlersModuleXml extends AbstractModule {
 			suppressRidBefore = "";
 		}
 		bind(String.class).annotatedWith(Names.named(CONFIG_XML_SUPPRESSRIDBEFORE)).toInstance(suppressRidBefore);
+		
+		String tsourceAllowed = System.getProperty(CONFIG_XML_TSOURCEALLOWED);
+		if (tsourceAllowed == null) {
+			tsourceAllowed = "tsp";
+		}
+		bind(String.class).annotatedWith(Names.named(CONFIG_XML_TSOURCEALLOWED)).toInstance(tsourceAllowed);
 	}
 
 }
